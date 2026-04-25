@@ -1,6 +1,11 @@
 {
-  "updated": "2026-04-25T14:48:58.635790+00:00",
+  "updated": "2026-04-25T14:54:28.836131+00:00",
   "prices": {
+    "FULC": {
+      "price": 7.84,
+      "name": "Fulcrum Therapeutics, Inc.",
+      "ok": true
+    },
     "FWONA": {
       "price": 81.389999,
       "name": "Liberty Media Corporation - Ser",
