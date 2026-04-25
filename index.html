@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Portfolio Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06080e;
+  --s1:#0b0f18;
+  --s2:#0f1520;
+  --s3:#131c2a;
+  --bd:#1a2438;
+  --bd2:#243350;
+  --text:#ccd8ee;
+  --muted:#3a5070;
+  --muted2:#243040;
+  --green:#00dfa2;
+  --red:#ff3d5a;
+  --blue:#4da6ff;
+  --gold:#ffcc00;
+  --orange:#ff8c42;
+  --mono:'Azeret Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+}
+html{font-size:14px}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;padding-bottom:80px}
+input,select,button,textarea{font-family:var(--mono);outline:none}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--s1)}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+
+/* HEADER */
+.hdr{background:linear-gradient(160deg,#0d1a30 0%,var(--bg) 100%);border-bottom:1px solid var(--bd);padding:18px 24px 14px;position:sticky;top:0;z-index:200;backdrop-filter:blur(8px)}
+.hdr-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.brand-name{font-size:1.2rem;font-weight:600;color:#deeeff;letter-spacing:-0.03em}
+.brand-sub{font-size:0.58rem;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;margin-top:2px}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.refresh-btn{background:#0f1f38;border:1px solid var(--bd2);color:var(--blue);padding:7px 16px;border-radius:8px;font-size:0.72rem;letter-spacing:0.06em;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s}
+.refresh-btn:hover{background:#162840}
+.refresh-btn:disabled{opacity:0.4;cursor:not-allowed}
+.last-upd{font-size:0.62rem;color:var(--muted)}
+
+/* SUMMARY */
+.summary{max-width:1200px;margin:18px auto 0;padding:0 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.sc{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:12px 15px}
+.sc-label{font-size:0.58rem;color:var(--muted);letter-spacing:0.13em;text-transform:uppercase;margin-bottom:5px}
+.sc-val{font-size:1.05rem;font-weight:500}
+.cg{color:var(--green)}.cr{color:var(--red)}.cb{color:var(--blue)}.co{color:var(--gold)}.ct{color:var(--text)}
+
+/* MAIN */
+.main{max-width:1200px;margin:20px auto 0;padding:0 24px}
+
+/* TABS */
+.tabs{display:flex;gap:1px;border-bottom:1px solid var(--bd);margin-bottom:20px}
+.tb{background:none;border:none;color:var(--muted);padding:9px 18px;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;border-bottom:2px solid transparent;cursor:pointer;transition:all 0.2s;margin-bottom:-1px}
+.tb.on{color:var(--blue);border-bottom-color:var(--blue)}
+.tb:hover:not(.on){color:var(--text)}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.tl-lbl{font-size:0.58rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase}
+.chip{background:none;border:1px solid var(--bd);color:var(--muted);padding:4px 12px;border-radius:99px;font-size:0.65rem;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;transition:all 0.18s}
+.chip.on,.chip:hover{background:var(--s2);border-color:var(--bd2);color:var(--text)}
+.chip.on{border-color:var(--blue);color:var(--blue)}
+
+/* TABLE */
+.tw{overflow-x:auto;border:1px solid var(--bd);border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:1000px;font-size:0.75rem}
+thead tr{background:var(--s1)}
+th{padding:9px 12px;text-align:right;font-size:0.57rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);font-weight:400;border-bottom:1px solid var(--bd);white-space:nowrap}
+th:first-child{text-align:left}
+tbody tr{border-bottom:1px solid var(--bd);transition:background 0.12s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--s1)}
+tbody tr.near-tp{background:rgba(255,204,0,0.04)!important;border-left:2px solid var(--gold)}
+tbody tr.near-tp:hover{background:rgba(255,204,0,0.07)!important}
+td{padding:10px 12px;text-align:right;vertical-align:middle}
+td:first-child{text-align:left}
+tfoot tr{background:var(--s2);border-top:2px solid var(--bd2)}
+tfoot td{padding:9px 12px;text-align:right;font-weight:500;font-size:0.75rem}
+tfoot td:first-child{text-align:left;color:var(--muted)}
+
+/* TICKER CELL */
+.tc{display:flex;align-items:center;gap:9px}
+.tc-bar{width:3px;height:34px;border-radius:2px;flex-shrink:0}
+.tc-name{font-weight:500;font-size:0.85rem;color:#deeeff}
+.tc-tag{font-size:0.58rem;color:var(--muted);margin-top:2px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:0.62rem;font-weight:500}
+.pg{background:rgba(0,223,162,0.1);color:var(--green)}
+.pr{background:rgba(255,61,90,0.1);color:var(--red)}
+.po{background:rgba(255,204,0,0.12);color:var(--gold)}
+
+/* TP PROGRESS BAR */
+.tp-wrap{min-width:100px}
+.tp-bar-bg{height:5px;background:var(--muted2);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.tp-bar-fill{height:100%;border-radius:3px;transition:width 0.6s ease}
+.tp-nums{display:flex;justify-content:space-between;font-size:0.58rem;color:var(--muted)}
+.tp-alert{color:var(--gold);font-size:0.6rem;margin-top:2px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* ACTION BUTTONS */
+.act{display:flex;gap:4px;justify-content:flex-end}
+.ab{background:none;border:1px solid var(--bd);color:var(--muted);padding:3px 8px;border-radius:5px;font-size:0.6rem;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.ab:hover{border-color:var(--bd2);color:var(--text)}
+.ab.close:hover{border-color:var(--gold);color:var(--gold)}
+.ab.del:hover{border-color:var(--red);color:var(--red)}
+
+/* FORM */
+.form-card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:26px;max-width:560px}
+.form-title{font-size:0.62rem;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:18px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ff label{display:block;font-size:0.58rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:5px}
+.ff input,.ff select{width:100%;background:var(--bg);border:1px solid var(--bd);border-radius:7px;padding:9px 11px;color:var(--text);font-size:0.78rem;transition:border-color 0.15s}
+.ff input:focus,.ff select:focus{border-color:var(--blue)}
+.ff.full{grid-column:1/-1}
+.ff-hint{font-size:0.6rem;color:var(--muted2);margin-top:3px}
+.sub-btn{width:100%;margin-top:16px;padding:11px;background:#0e2040;border:1px solid #1e4070;color:var(--blue);border-radius:9px;font-size:0.8rem;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em}
+.sub-btn:hover{background:#142a55}
+.sub-btn:disabled{opacity:0.5;cursor:not-allowed}
+
+/* HIGHLIGHT CARDS */
+.hl-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.hl{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:13px 16px}
+.hl-lbl{font-size:0.57rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:5px}
+.hl-tk{font-size:1rem;color:#deeeff;font-weight:500}
+.hl-val{font-size:0.78rem;margin-top:3px}
+
+/* CHART */
+.chart-card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:20px;margin-top:20px}
+.chart-title{font-size:0.62rem;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:16px}
+.chart-wrap{position:relative;height:200px}
+
+/* STATUS */
+.status-bar{display:flex;align-items:center;gap:8px;font-size:0.65rem;color:var(--muted);margin-bottom:12px}
+.sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sdot-g{background:var(--green);box-shadow:0 0 6px var(--green)}
+.sdot-r{background:var(--red)}
+.sdot-o{background:var(--gold)}
+.sdot-grey{background:var(--muted)}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-icon{font-size:2.2rem;margin-bottom:12px}
+
+/* SETUP BANNER */
+.setup{background:#091828;border:1px solid #1a3a5a;border-radius:12px;padding:18px 22px;margin-bottom:22px;font-size:0.78rem;line-height:1.8}
+.setup h3{color:var(--blue);margin-bottom:8px;font-size:0.82rem}
+.setup code{background:var(--bg);padding:2px 6px;border-radius:4px;color:var(--gold);font-size:0.72rem}
+.setup-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+
+/* SPIN / ANIM */
+.spin{display:inline-block;animation:spin 0.85s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.fi{animation:fi 0.28s ease both}
+
+/* R/R BADGE */
+.rr{display:inline-block;padding:2px 7px;border-radius:5px;font-size:0.6rem;background:rgba(77,166,255,0.1);color:var(--blue)}
+
+/* TV BUTTON */
+.ab.tv:hover{border-color:#2962ff;color:#2962ff}
+.ab.edit:hover{border-color:var(--blue);color:var(--blue)}
+
+/* EDIT MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;padding:28px;width:min(560px,95vw);max-height:90vh;overflow-y:auto;animation:fi 0.2s ease both}
+.modal-title{font-size:0.65rem;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px}
+.modal-ticker{font-size:1.1rem;color:#deeeff;font-weight:600;margin-bottom:20px}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;line-height:1}
+.modal-close:hover{color:var(--text)}
+
+@media(max-width:640px){
+  .hdr,.main,.summary{padding-left:14px;padding-right:14px}
+  .fg{grid-template-columns:1fr}
+  .hl-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-inner">
+    <div>
+      <div class="brand-name">📈 Portfolio Tracker</div>
+      <div class="brand-sub">GitHub Actions · Yahoo Finance</div>
+    </div>
+    <div class="hdr-right">
+      <span class="last-upd" id="lastUpd">Loading…</span>
+      <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">
+        <span id="refreshIcon">⟳</span> Refresh
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY STRIP -->
+<div class="summary" id="summary" style="display:none"></div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SETUP BANNER -->
+  <div class="setup" id="setupBanner">
+    <h3>⚙ First-time setup</h3>
+    Enter your GitHub repo to load <code>portfolio.json</code> and <code>prices.json</code>.<br>
+    <div class="setup-row">
+      <input id="repoInput" type="text" placeholder="mahirshafi/portfolio-tracker"
+        style="background:var(--bg);border:1px solid var(--bd);border-radius:7px;padding:8px 12px;color:var(--text);font-size:0.78rem;width:260px" />
+      <button class="sub-btn" style="width:auto;margin:0;padding:8px 16px" onclick="saveRepo()">Save & Load</button>
+    </div>
+  </div>
+
+  <!-- SAVE STATUS TOAST -->
+  <div id="saveToast" style="display:none;position:fixed;bottom:24px;right:24px;z-index:999;background:var(--s2);border:1px solid var(--bd2);border-radius:10px;padding:12px 18px;font-size:0.72rem;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,0.5);transition:all 0.3s"></div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tb on" onclick="showTab('open',this)">Open <span id="cntOpen">(0)</span></button>
+    <button class="tb" onclick="showTab('add',this)">+ Add</button>
+    <button class="tb" onclick="showTab('closed',this)">Closed <span id="cntClosed">(0)</span></button>
+    <button class="tb" onclick="showTab('chart',this)">Equity Curve</button>
+    <button class="tb" onclick="showTab('guide',this)">Guide</button>
+    <button class="tb" onclick="showTab('settings',this)">⚙ Settings</button>
+  </div>
+
+  <!-- OPEN TAB -->
+  <div id="tab-open" class="fi">
+    <div class="status-bar">
+      <div class="sdot sdot-grey" id="sdot"></div>
+      <span id="stext">Loading…</span>
+    </div>
+    <div class="toolbar">
+      <span class="tl-lbl">Filter:</span>
+      <button class="chip on" onclick="setFilter('all',this)">All</button>
+      <button class="chip" onclick="setFilter('win',this)">Winners</button>
+      <button class="chip" onclick="setFilter('loss',this)">Losers</button>
+      <button class="chip" onclick="setFilter('near',this)">🎯 Near TP</button>
+      <span class="tl-lbl" style="margin-left:10px">Sort:</span>
+      <button class="chip on" onclick="setSort('date',this)">Date</button>
+      <button class="chip" onclick="setSort('pnl',this)">P&L</button>
+      <button class="chip" onclick="setSort('ret',this)">Return</button>
+      <button class="chip" onclick="setSort('tp',this)">TP%</button>
+      <button class="chip" onclick="setSort('hold',this)">Hold</button>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>Ticker</th>
+          <th>Entry</th>
+          <th>Current</th>
+          <th>P&L</th>
+          <th>Ret%</th>
+          <th>TP Progress</th>
+          <th>SL</th>
+          <th>R/R</th>
+          <th>Hold</th>
+          <th>Actions</th>
+        </tr></thead>
+        <tbody id="openBody"></tbody>
+        <tfoot id="openFoot"></tfoot>
+      </table>
+    </div>
+    <div class="hl-row" id="hlRow" style="display:none"></div>
+  </div>
+
+  <!-- ADD TAB -->
+  <div id="tab-add" style="display:none" class="fi">
+    <div class="form-card">
+      <div class="form-title">New Position</div>
+      <div class="fg">
+        <div class="ff">
+          <label>Ticker *</label>
+          <input id="fTicker" type="text" placeholder="AAPL, EURUSD=X…" />
+        </div>
+        <div class="ff">
+          <label>Entry Price ($) *</label>
+          <input id="fEntry" type="number" step="any" placeholder="79.09" />
+        </div>
+        <div class="ff">
+          <label>Entry Date *</label>
+          <input id="fDate" type="date" />
+        </div>
+        <div class="ff">
+          <label>Amount Invested ($)</label>
+          <input id="fInvest" type="number" step="any" placeholder="500" />
+        </div>
+        <div class="ff">
+          <label>Take Profit ($) <span style="color:var(--muted2)">(optional)</span></label>
+          <input id="fTP" type="number" step="any" placeholder="e.g. 90.00" />
+        </div>
+        <div class="ff">
+          <label>Stop Loss ($) <span style="color:var(--muted2)">(optional)</span></label>
+          <input id="fSL" type="number" step="any" placeholder="e.g. 72.00" />
+        </div>
+        <div class="ff full">
+          <label>Notes / Setup Tag</label>
+          <input id="fNotes" type="text" placeholder="e.g. COT setup, breakout, earnings…" />
+        </div>
+      </div>
+      <div style="font-size:0.62rem;color:var(--muted2);margin-top:10px;line-height:1.7">
+        📌 Stocks: <code style="color:var(--gold)">AAPL</code> &nbsp;
+        Forex: <code style="color:var(--gold)">EURUSD=X</code> &nbsp;
+        Crypto: <code style="color:var(--gold)">BTC-USD</code> &nbsp;
+        Futures: <code style="color:var(--gold)">GC=F</code>
+      </div>
+      <button class="sub-btn" onclick="addPosition()">Add Position</button>
+      <div id="addMsg" style="font-size:0.68rem;margin-top:9px;min-height:16px"></div>
+    </div>
+    <div style="margin-top:18px;background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px 22px;max-width:560px">
+      <div style="font-size:0.62rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px">After adding</div>
+      <div style="font-size:0.75rem;color:#5a7898;line-height:1.9">
+        1. Click <strong style="color:var(--text)">⬇ Download portfolio.json</strong><br>
+        2. Go to your GitHub repo → open <code style="color:var(--gold)">portfolio.json</code> → Edit → paste → Commit<br>
+        3. GitHub → Actions → Update Stock Prices → <strong style="color:var(--text)">Run workflow</strong>
+      </div>
+      <button class="sub-btn" style="margin-top:12px" onclick="downloadPortfolio()">⬇ Download portfolio.json</button>
+    </div>
+  </div>
+
+  <!-- CLOSED TAB -->
+  <div id="tab-closed" style="display:none" class="fi">
+    <div id="closedContent"></div>
+  </div>
+
+  <!-- CHART TAB -->
+  <div id="tab-chart" style="display:none" class="fi">
+    <div class="chart-card">
+      <div class="chart-title">Portfolio Equity Curve — Cumulative P&L over time</div>
+      <div class="chart-wrap"><canvas id="equityChart"></canvas></div>
+    </div>
+    <div class="chart-card" style="margin-top:14px">
+      <div class="chart-title">P&L per Position (open)</div>
+      <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- GUIDE TAB -->
+  <div id="tab-guide" style="display:none" class="fi">
+    <div style="background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:26px;max-width:640px;line-height:1.9;font-size:0.78rem;color:#5a7898">
+      <h3 style="color:var(--blue);margin-bottom:14px;font-size:0.85rem">Setup & Usage Guide</h3>
+      <p style="color:var(--text);margin-bottom:4px"><strong>Adding positions</strong></p>
+      <p>Use + Add tab. Fill ticker, entry price, date. TP and SL are optional but unlock the progress bar and R/R ratio. After adding, download <code style="color:var(--gold)">portfolio.json</code> and commit it to your GitHub repo, then run the workflow.</p><br>
+      <p style="color:var(--text);margin-bottom:4px"><strong>TP Progress bar</strong></p>
+      <p>Shows how far price has moved from your entry toward your TP target. When 90%+ reached, the row glows gold ⚡ as an alert.</p><br>
+      <p style="color:var(--text);margin-bottom:4px"><strong>R/R Ratio</strong></p>
+      <p>Auto-calculated from Entry, TP, and SL. R/R = (TP − Entry) / (Entry − SL). A ratio above 2.0 is generally considered good.</p><br>
+      <p style="color:var(--text);margin-bottom:4px"><strong>Price updates</strong></p>
+      <p>GitHub Actions runs Mon–Fri 22:00 UTC automatically. Manual trigger: GitHub → Actions → Update Stock Prices → Run workflow.</p><br>
+      <p style="color:var(--text);margin-bottom:4px"><strong>Ticker formats</strong></p>
+      <table style="width:100%;font-size:0.72rem;border-collapse:collapse">
+        <tr><td style="padding:3px 0;color:var(--gold);width:160px">AAPL, FWONA, NVDA</td><td>US Stocks</td></tr>
+        <tr><td style="color:var(--gold)">EURUSD=X, GBPUSD=X</td><td>Forex</td></tr>
+        <tr><td style="color:var(--gold)">BTC-USD, ETH-USD</td><td>Crypto</td></tr>
+        <tr><td style="color:var(--gold)">GC=F, CL=F</td><td>Gold, Oil futures</td></tr>
+        <tr><td style="color:var(--gold)">^GSPC, ^NDX</td><td>S&P 500, Nasdaq</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div id="tab-settings" style="display:none" class="fi">
+    <div style="background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:26px;max-width:520px">
+      <div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:18px">GitHub Settings</div>
+
+      <div class="ff" style="margin-bottom:14px">
+        <label>GitHub Repo (username/repo)</label>
+        <input id="settingsRepo" type="text" placeholder="mahirshafi/portfolio-tracker" />
+      </div>
+
+      <div class="ff" style="margin-bottom:6px">
+        <label>Personal Access Token (PAT)</label>
+        <input id="settingsPAT" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+      </div>
+      <div style="font-size:0.62rem;color:var(--muted2);margin-bottom:18px;line-height:1.7">
+        🔒 Stored in your browser only — never sent anywhere except GitHub's own API.<br>
+        Needs <strong style="color:var(--text)">repo</strong> scope (read + write contents).
+      </div>
+
+      <button class="sub-btn" onclick="saveSettings()" style="margin-top:0">Save Settings</button>
+      <div id="settingsMsg" style="font-size:0.68rem;margin-top:9px;min-height:16px"></div>
+
+      <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--bd)">
+        <div style="font-size:0.62rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px">How to create a PAT</div>
+        <div style="font-size:0.75rem;color:#5a7898;line-height:2">
+          1. Go to <strong style="color:var(--text)">github.com → Settings</strong> (top right avatar)<br>
+          2. <strong style="color:var(--text)">Developer settings</strong> (bottom of left sidebar)<br>
+          3. <strong style="color:var(--text)">Personal access tokens → Tokens (classic)</strong><br>
+          4. <strong style="color:var(--text)">Generate new token (classic)</strong><br>
+          5. Give it a name e.g. <code style="color:var(--gold)">portfolio-tracker</code><br>
+          6. Check the <code style="color:var(--gold)">repo</code> scope checkbox<br>
+          7. Click <strong style="color:var(--text)">Generate token</strong> → copy it here
+        </div>
+      </div>
+
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--bd)">
+        <div style="font-size:0.62rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px">Current Status</div>
+        <div id="patStatus" style="font-size:0.75rem;color:#5a7898">Not configured</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal" onclick="closeModal(event)">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="document.getElementById('editModal').classList.remove('open')">✕</button>
+    <div class="modal-title">Edit Position</div>
+    <div class="modal-ticker" id="editModalTicker"></div>
+    <div class="fg">
+      <div class="ff">
+        <label>Ticker</label>
+        <input id="eTicker" type="text" />
+      </div>
+      <div class="ff">
+        <label>Entry Price ($)</label>
+        <input id="eEntry" type="number" step="any" />
+      </div>
+      <div class="ff">
+        <label>Entry Date</label>
+        <input id="eDate" type="date" />
+      </div>
+      <div class="ff">
+        <label>Amount Invested ($)</label>
+        <input id="eInvest" type="number" step="any" />
+      </div>
+      <div class="ff">
+        <label>Take Profit ($)</label>
+        <input id="eTP" type="number" step="any" placeholder="optional" />
+      </div>
+      <div class="ff">
+        <label>Stop Loss ($)</label>
+        <input id="eSL" type="number" step="any" placeholder="optional" />
+      </div>
+      <div class="ff full">
+        <label>Notes / Setup Tag</label>
+        <input id="eNotes" type="text" placeholder="COT setup, breakout…" />
+      </div>
+    </div>
+    <button class="sub-btn" onclick="saveEdit()">Save Changes</button>
+    <div id="editMsg" style="font-size:0.68rem;margin-top:8px;min-height:16px"></div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────
+const SK_REPO = "pt_repo2";
+const SK_PORT = "pt_portfolio2";
+const SK_PAT  = "pt_pat";
+
+let REPO      = localStorage.getItem(SK_REPO) || "";
+let PAT       = localStorage.getItem(SK_PAT)  || "";
+let portfolio = JSON.parse(localStorage.getItem(SK_PORT) || '{"positions":[]}');
+let prices    = {};
+let pricesTs  = null;
+let filterMode= "all";
+let sortKey   = "date";
+let equityChart = null;
+let barChart    = null;
+let portfolioSHA = null; // GitHub file SHA needed for updates
+
+// ── INIT ────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("fDate").value = new Date().toISOString().slice(0,10);
+  if (REPO) {
+    document.getElementById("setupBanner").style.display = "none";
+    document.getElementById("repoInput").value = REPO;
+    loadAll();
+  }
+  // Pre-fill settings tab
+  if (REPO) document.getElementById("settingsRepo").value = REPO;
+  if (PAT)  document.getElementById("settingsPAT").value  = PAT;
+  updatePatStatus();
+  renderOpen();
+});
+
+// ── REPO ────────────────────────────────────────────────
+function saveRepo() {
+  const v = document.getElementById("repoInput").value.trim().replace(/^\/|\/$/g,"");
+  if (!v.includes("/")) { alert("Format: username/repo-name"); return; }
+  REPO = v;
+  localStorage.setItem(SK_REPO, REPO);
+  document.getElementById("setupBanner").style.display = "none";
+  loadAll();
+}
+
+// ── LOAD ────────────────────────────────────────────────
+async function loadAll() {
+  if (!REPO) return;
+  const btn  = document.getElementById("refreshBtn");
+  const icon = document.getElementById("refreshIcon");
+  btn.disabled = true;
+  icon.className = "spin";
+  setStatus("grey","Fetching from GitHub…");
+
+  try {
+    const base = `https://raw.githubusercontent.com/${REPO}/main`;
+    const pRes = await fetch(`${base}/portfolio.json?t=${Date.now()}`);
+    if (pRes.ok) {
+      portfolio = await pRes.json();
+      localStorage.setItem(SK_PORT, JSON.stringify(portfolio));
+    }
+    // Also fetch SHA via GitHub API (needed for updating file)
+    if (PAT) fetchPortfolioSHA();
+    const prRes = await fetch(`${base}/prices.json?t=${Date.now()}`);
+    if (prRes.ok) {
+      const d = await prRes.json();
+      prices   = d.prices || {};
+      pricesTs = d.updated;
+      setStatus("g", pricesTs ? `Prices updated ${timeAgo(pricesTs)}` : "Prices loaded");
+    } else {
+      setStatus("o","prices.json not found — run the GitHub Action first");
+    }
+  } catch(e) {
+    setStatus("r",`Load failed: ${e.message}`);
+  }
+
+  btn.disabled = false;
+  icon.className = "";
+  document.getElementById("lastUpd").textContent =
+    pricesTs ? `Updated ${timeAgo(pricesTs)}` : "";
+
+  renderOpen();
+  renderClosed();
+  renderSummary();
+  renderCharts();
+}
+
+// ── CALC ────────────────────────────────────────────────
+function calc(pos) {
+  const pr = pos.closed ? (pos.closePrice ?? pos.entry) : (prices[pos.ticker]?.price ?? null);
+  const eff = pr ?? pos.entry;
+  const shares = pos.invest / pos.entry;
+  const pnl    = shares * eff - pos.invest;
+  const ret    = (pnl / pos.invest) * 100;
+  const win    = pnl >= 0;
+
+  // TP progress
+  let tpPct = null, tpRemain = null, nearTP = false;
+  if (pos.tp && pos.entry && pr !== null) {
+    const range = pos.tp - pos.entry;
+    if (range > 0) {
+      tpPct    = Math.min(((eff - pos.entry) / range) * 100, 100);
+      tpRemain = (pos.tp - eff) * shares;
+      nearTP   = tpPct >= 90;
+    }
+  }
+
+  // R/R
+  let rr = null;
+  if (pos.tp && pos.sl && pos.entry) {
+    const reward = Math.abs(pos.tp - pos.entry);
+    const risk   = Math.abs(pos.entry - pos.sl);
+    if (risk > 0) rr = (reward / risk).toFixed(2);
+  }
+
+  // SL distance %
+  let slPct = null;
+  if (pos.sl && pr !== null) {
+    slPct = (((eff - pos.sl) / eff) * 100).toFixed(1);
+  }
+
+  return { pr: eff, pnl, ret, win, shares, tpPct, tpRemain, nearTP, rr, slPct };
+}
+
+// ── RENDER OPEN ─────────────────────────────────────────
+function renderOpen() {
+  const open = portfolio.positions.filter(p => !p.closed);
+  document.getElementById("cntOpen").textContent = `(${open.length})`;
+
+  let list = [...open];
+  if (filterMode === "win")  list = list.filter(p => calc(p).win);
+  if (filterMode === "loss") list = list.filter(p => !calc(p).win);
+  if (filterMode === "near") list = list.filter(p => calc(p).nearTP);
+
+  list.sort((a,b) => {
+    if (sortKey === "date") return new Date(b.entryDate) - new Date(a.entryDate);
+    if (sortKey === "pnl")  return calc(b).pnl  - calc(a).pnl;
+    if (sortKey === "ret")  return calc(b).ret  - calc(a).ret;
+    if (sortKey === "tp")   return (calc(b).tpPct??-1) - (calc(a).tpPct??-1);
+    if (sortKey === "hold") return holdDays(a.entryDate) - holdDays(b.entryDate);
+    return 0;
+  });
+
+  const tbody = document.getElementById("openBody");
+  const tfoot = document.getElementById("openFoot");
+
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="empty-icon">📭</div><p>No positions match.<br>Try a different filter.</p></div></td></tr>`;
+    tfoot.innerHTML = "";
+    document.getElementById("hlRow").style.display = "none";
+    return;
+  }
+
+  tbody.innerHTML = list.map(pos => {
+    const { pr, pnl, ret, win, shares, tpPct, tpRemain, nearTP, rr, slPct } = calc(pos);
+    const days = holdDays(pos.entryDate);
+
+    // TP bar
+    let tpCell = `<span style="color:var(--muted);font-size:0.65rem">—</span>`;
+    if (pos.tp) {
+      const pct  = tpPct !== null ? Math.max(0, tpPct) : 0;
+      const color = pct >= 90 ? "var(--gold)" : pct >= 50 ? "var(--green)" : "var(--blue)";
+      tpCell = `
+        <div class="tp-wrap">
+          <div style="display:flex;justify-content:space-between;font-size:0.58rem;color:var(--muted);margin-bottom:3px">
+            <span>$${pos.tp}</span><span>${pct.toFixed(0)}%</span>
+          </div>
+          <div class="tp-bar-bg">
+            <div class="tp-bar-fill" style="width:${pct}%;background:${color}"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.57rem;margin-top:3px">
+            <span style="color:var(--muted)">remain</span>
+            <span style="color:${color}">${tpRemain !== null ? (tpRemain > 0 ? "+$" + tpRemain.toFixed(2) : "✓ Hit") : "—"}</span>
+          </div>
+          ${nearTP ? `<div class="tp-alert">⚡ Near TP!</div>` : ""}
+        </div>`;
+    }
+
+    // SL cell
+    const slCell = pos.sl
+      ? `<div style="font-size:0.7rem;color:var(--red)">$${pos.sl}</div>
+         ${slPct !== null ? `<div style="font-size:0.57rem;color:var(--muted)">${slPct}% away</div>` : ""}`
+      : `<span style="color:var(--muted2)">—</span>`;
+
+    return `
+    <tr class="${nearTP ? "near-tp" : ""}">
+      <td>
+        <div class="tc">
+          <div class="tc-bar" style="background:${win ? "var(--green)" : "var(--red)"}"></div>
+          <div>
+            <div class="tc-name">${pos.ticker}</div>
+            ${pos.notes ? `<div class="tc-tag">${pos.notes}</div>` : ""}
+          </div>
+        </div>
+      </td>
+      <td style="color:var(--blue)">$${pos.entry}</td>
+      <td style="color:${win ? "var(--green)" : "var(--red)"}">
+        ${pr !== null ? "$" + pr.toFixed(4) : '<span style="color:var(--muted)">—</span>'}
+      </td>
+      <td style="color:${win ? "var(--green)" : "var(--red)"};font-weight:500">${fmt(pnl)}</td>
+      <td><span class="pill ${win ? "pg" : "pr"}">${fmtP(ret)}</span></td>
+      <td>${tpCell}</td>
+      <td>${slCell}</td>
+      <td>${rr ? `<span class="rr">${rr}R</span>` : '<span style="color:var(--muted2)">—</span>'}</td>
+      <td style="color:var(--muted);font-size:0.7rem">${holdLabel(days)}</td>
+      <td>
+        <div class="act">
+          <button class="ab tv" onclick="openTV('${pos.ticker}')" title="Open on TradingView">📊</button>
+          <button class="ab edit" onclick="openEdit('${pos.id}')" title="Edit position">✏</button>
+          <button class="ab close" onclick="closePos('${pos.id}')" title="Close position">✕</button>
+          <button class="ab del" onclick="deletePos('${pos.id}')" title="Delete">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join("");
+
+  // Footer
+  const totPnl = list.reduce((s,p) => s + calc(p).pnl, 0);
+  const totInv = list.reduce((s,p) => s + p.invest, 0);
+  const totRet = totInv ? (totPnl / totInv) * 100 : 0;
+  tfoot.innerHTML = `
+    <tr>
+      <td>TOTAL · ${list.length}</td>
+      <td></td><td></td>
+      <td style="color:${totPnl>=0?"var(--green)":"var(--red)"}">${fmt(totPnl)}</td>
+      <td style="color:${totRet>=0?"var(--green)":"var(--red)"}">${fmtP(totRet)}</td>
+      <td colspan="5"></td>
+    </tr>`;
+
+  // Best/Worst
+  if (open.length > 0) {
+    const best  = open.reduce((a,b) => calc(a).pnl > calc(b).pnl ? a : b);
+    const worst = open.reduce((a,b) => calc(a).pnl < calc(b).pnl ? a : b);
+    const hlRow = document.getElementById("hlRow");
+    hlRow.style.display = "grid";
+    hlRow.innerHTML = [
+      { lbl:"🏆 Best Position",    pos:best,  col:"var(--green)" },
+      { lbl:"⚠ Weakest Position",  pos:worst, col:"var(--red)" },
+    ].map(({lbl,pos,col}) => {
+      const {pnl,ret,tpPct} = calc(pos);
+      return `
+      <div class="hl" style="border-left:3px solid ${col}">
+        <div class="hl-lbl">${lbl}</div>
+        <div class="hl-tk">${pos.ticker} ${pos.notes ? `<span style="font-size:0.6rem;color:var(--muted)">${pos.notes}</span>` : ""}</div>
+        <div class="hl-val" style="color:${col}">${fmt(pnl)} · ${fmtP(ret)}</div>
+        ${tpPct !== null ? `<div style="font-size:0.6rem;color:var(--muted);margin-top:2px">TP: ${tpPct.toFixed(0)}% reached</div>` : ""}
+      </div>`;
+    }).join("");
+  }
+}
+
+// ── RENDER CLOSED ───────────────────────────────────────
+function renderClosed() {
+  const closed = portfolio.positions.filter(p => p.closed);
+  document.getElementById("cntClosed").textContent = `(${closed.length})`;
+  const el = document.getElementById("closedContent");
+  if (closed.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🗄</div><p>No closed positions.</p></div>`;
+    return;
+  }
+  const totPnl = closed.reduce((s,p) => s + calc(p).pnl, 0);
+  el.innerHTML = `
+    <div style="font-size:0.75rem;color:var(--muted);margin-bottom:12px">
+      Realized P&L: <strong style="color:${totPnl>=0?"var(--green)":"var(--red)"}">${fmt(totPnl)}</strong>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th>Ticker</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Return</th><th>TP Hit?</th><th>Held</th><th>Closed</th>
+      </tr></thead>
+      <tbody>${closed.map(pos => {
+        const price  = pos.closePrice ?? pos.entry;
+        const shares = pos.invest / pos.entry;
+        const pnl    = shares * price - pos.invest;
+        const ret    = (pnl / pos.invest) * 100;
+        const win    = pnl >= 0;
+        const days   = pos.closeDate && pos.entryDate
+          ? Math.floor((new Date(pos.closeDate) - new Date(pos.entryDate)) / 86400000) : 0;
+        const tpHit  = pos.tp && price >= pos.tp ? "✅" : pos.tp ? "✗" : "—";
+        return `<tr style="opacity:0.75">
+          <td style="color:#deeeff">${pos.ticker}</td>
+          <td style="color:var(--muted)">$${pos.entry}</td>
+          <td style="color:var(--muted)">$${price}</td>
+          <td style="color:${win?"var(--green)":"var(--red)"};font-weight:500">${fmt(pnl)}</td>
+          <td><span class="pill ${win?"pg":"pr"}">${fmtP(ret)}</span></td>
+          <td style="color:var(--muted)">${tpHit}</td>
+          <td style="color:var(--muted)">${holdLabel(days)}</td>
+          <td style="color:var(--muted);font-size:0.68rem">${pos.closeDate||"—"}</td>
+        </tr>`;
+      }).join("")}</tbody>
+    </table></div>`;
+}
+
+// ── RENDER SUMMARY ──────────────────────────────────────
+function renderSummary() {
+  const open   = portfolio.positions.filter(p => !p.closed);
+  const closed = portfolio.positions.filter(p => p.closed);
+  if (open.length === 0) { document.getElementById("summary").style.display="none"; return; }
+  const totInv  = open.reduce((s,p) => s + p.invest, 0);
+  const totPnl  = open.reduce((s,p) => s + calc(p).pnl, 0);
+  const totRet  = totInv ? (totPnl/totInv)*100 : 0;
+  const winners = open.filter(p => calc(p).win).length;
+  const nearTP  = open.filter(p => calc(p).nearTP).length;
+  const realPnl = closed.reduce((s,p) => s + calc(p).pnl, 0);
+  const el = document.getElementById("summary");
+  el.style.display = "grid";
+  el.innerHTML = [
+    { lbl:"Invested",      val:`$${totInv.toLocaleString()}`,         cls:"cb" },
+    { lbl:"Unrealized P&L",val:fmt(totPnl),                           cls:totPnl>=0?"cg":"cr" },
+    { lbl:"Return",        val:fmtP(totRet),                          cls:totRet>=0?"cg":"cr" },
+    { lbl:"W / L",         val:`${winners} / ${open.length-winners}`, cls:"co" },
+    { lbl:"⚡ Near TP",    val:nearTP,                                 cls:"co" },
+    { lbl:"Realized P&L",  val:fmt(realPnl),                          cls:realPnl>=0?"cg":"cr" },
+  ].map(c => `<div class="sc"><div class="sc-label">${c.lbl}</div><div class="sc-val ${c.cls}">${c.val}</div></div>`).join("");
+}
+
+// ── CHARTS ──────────────────────────────────────────────
+function renderCharts() {
+  renderEquityChart();
+  renderBarChart();
+}
+
+function renderEquityChart() {
+  const closed = portfolio.positions.filter(p => p.closed && p.closeDate);
+  closed.sort((a,b) => new Date(a.closeDate) - new Date(b.closeDate));
+
+  const labels = []; const data = []; let cum = 0;
+  closed.forEach(p => {
+    cum += calc(p).pnl;
+    labels.push(p.closeDate);
+    data.push(+cum.toFixed(2));
+  });
+
+  // Add open positions as "today"
+  const open = portfolio.positions.filter(p => !p.closed);
+  if (open.length > 0) {
+    const openPnl = open.reduce((s,p) => s + calc(p).pnl, 0);
+    labels.push("Today (open)");
+    data.push(+(cum + openPnl).toFixed(2));
+  }
+
+  if (labels.length === 0) return;
+
+  const ctx = document.getElementById("equityChart").getContext("2d");
+  if (equityChart) equityChart.destroy();
+
+  const color = data[data.length-1] >= 0 ? "#00dfa2" : "#ff3d5a";
+
+  equityChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        data,
+        borderColor: color,
+        backgroundColor: color + "18",
+        fill: true,
+        tension: 0.35,
+        pointRadius: 4,
+        pointBackgroundColor: color,
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: "#3a5070", font: { family: "Azeret Mono", size: 10 } }, grid: { color: "#1a2438" } },
+        y: { ticks: { color: "#3a5070", font: { family: "Azeret Mono", size: 10 }, callback: v => "$"+v }, grid: { color: "#1a2438" } }
+      }
+    }
+  });
+}
+
+function renderBarChart() {
+  const open = portfolio.positions.filter(p => !p.closed);
+  if (open.length === 0) return;
+
+  open.sort((a,b) => calc(b).pnl - calc(a).pnl);
+  const labels = open.map(p => p.ticker);
+  const data   = open.map(p => +calc(p).pnl.toFixed(2));
+  const colors = data.map(v => v >= 0 ? "#00dfa2" : "#ff3d5a");
+
+  const ctx = document.getElementById("barChart").getContext("2d");
+  if (barChart) barChart.destroy();
+
+  barChart = new Chart(ctx, {
+    type: "bar",
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 4 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: "#3a5070", font: { family: "Azeret Mono", size: 10 } }, grid: { color: "#1a2438" } },
+        y: { ticks: { color: "#3a5070", font: { family: "Azeret Mono", size: 10 }, callback: v => "$"+v }, grid: { color: "#1a2438" } }
+      }
+    }
+  });
+}
+
+// ── ADD ─────────────────────────────────────────────────
+function addPosition() {
+  const ticker = document.getElementById("fTicker").value.trim().toUpperCase();
+  const entry  = parseFloat(document.getElementById("fEntry").value);
+  const date   = document.getElementById("fDate").value;
+  const invest = parseFloat(document.getElementById("fInvest").value) || 500;
+  const tp     = parseFloat(document.getElementById("fTP").value) || null;
+  const sl     = parseFloat(document.getElementById("fSL").value) || null;
+  const notes  = document.getElementById("fNotes").value.trim();
+
+  if (!ticker || isNaN(entry) || !date) {
+    document.getElementById("addMsg").innerHTML = `<span style="color:var(--red)">⚠ Ticker, entry price and date are required.</span>`;
+    return;
+  }
+
+  portfolio.positions.push({
+    id: Date.now().toString(),
+    ticker, entry, entryDate: date, invest,
+    tp, sl, notes,
+    name: ticker, closed: false, closePrice: null, closeDate: null,
+  });
+
+  localStorage.setItem(SK_PORT, JSON.stringify(portfolio));
+  document.getElementById("fTicker").value = "";
+  document.getElementById("fEntry").value  = "";
+  document.getElementById("fTP").value     = "";
+  document.getElementById("fSL").value     = "";
+  document.getElementById("fNotes").value  = "";
+  document.getElementById("addMsg").innerHTML =
+    `<span style="color:var(--green)">✓ ${ticker} added! Saving to GitHub…</span>`;
+
+  saveToGitHub(`Add position: ${ticker}`);
+  renderOpen(); renderSummary();
+}
+
+// ── EDIT ────────────────────────────────────────────────
+let editingId = null;
+
+function openEdit(id) {
+  const pos = portfolio.positions.find(p => p.id === id);
+  if (!pos) return;
+  editingId = id;
+  document.getElementById("editModalTicker").textContent = pos.ticker;
+  document.getElementById("eTicker").value  = pos.ticker;
+  document.getElementById("eEntry").value   = pos.entry;
+  document.getElementById("eDate").value    = pos.entryDate;
+  document.getElementById("eInvest").value  = pos.invest;
+  document.getElementById("eTP").value      = pos.tp || "";
+  document.getElementById("eSL").value      = pos.sl || "";
+  document.getElementById("eNotes").value   = pos.notes || "";
+  document.getElementById("editMsg").innerHTML = "";
+  document.getElementById("editModal").classList.add("open");
+}
+
+function saveEdit() {
+  const pos = portfolio.positions.find(p => p.id === editingId);
+  if (!pos) return;
+  const ticker = document.getElementById("eTicker").value.trim().toUpperCase();
+  const entry  = parseFloat(document.getElementById("eEntry").value);
+  const date   = document.getElementById("eDate").value;
+  if (!ticker || isNaN(entry) || !date) {
+    document.getElementById("editMsg").innerHTML = `<span style="color:var(--red)">⚠ Ticker, entry and date required.</span>`;
+    return;
+  }
+  pos.ticker    = ticker;
+  pos.entry     = entry;
+  pos.entryDate = date;
+  pos.invest    = parseFloat(document.getElementById("eInvest").value) || pos.invest;
+  pos.tp        = parseFloat(document.getElementById("eTP").value) || null;
+  pos.sl        = parseFloat(document.getElementById("eSL").value) || null;
+  pos.notes     = document.getElementById("eNotes").value.trim();
+  saveToGitHub(`Edit position: ${pos.ticker}`);
+  document.getElementById("editMsg").innerHTML = `<span style="color:var(--green)">✓ Saving to GitHub…</span>`;
+  setTimeout(() => document.getElementById("editModal").classList.remove("open"), 1200);
+  renderOpen(); renderSummary();
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById("editModal"))
+    document.getElementById("editModal").classList.remove("open");
+}
+
+// ── TRADINGVIEW ─────────────────────────────────────────
+function openTV(ticker) {
+  // Convert Yahoo Finance ticker format to TradingView format
+  let tv = ticker
+    .replace("=X", "")          // EURUSD=X → EURUSD
+    .replace("-USD", "USD")      // BTC-USD  → BTCUSD
+    .replace("=F", "1!")         // GC=F     → GC1! (futures)
+    .replace(/^\^/, "");         // ^GSPC    → GSPC
+  window.open(`https://www.tradingview.com/chart/?symbol=${tv}`, "_blank");
+}
+function closePos(id) {
+  const pos = portfolio.positions.find(p => p.id === id);
+  if (!pos) return;
+  pos.closed     = true;
+  pos.closePrice = prices[pos.ticker]?.price ?? pos.entry;
+  pos.closeDate  = new Date().toISOString().slice(0,10);
+  saveToGitHub("Close position: " + pos.ticker);
+  renderOpen(); renderClosed(); renderSummary(); renderCharts();
+}
+function deletePos(id) {
+  if (!confirm("Delete this position?")) return;
+  portfolio.positions = portfolio.positions.filter(p => p.id !== id);
+  saveToGitHub("Delete position");
+  renderOpen(); renderSummary(); renderCharts();
+}
+
+// ── GITHUB API SAVE ──────────────────────────────────────
+async function fetchPortfolioSHA() {
+  if (!PAT || !REPO) return;
+  try {
+    const res = await fetch(`https://api.github.com/repos/${REPO}/contents/portfolio.json`, {
+      headers: { Authorization: `token ${PAT}`, Accept: "application/vnd.github.v3+json" }
+    });
+    if (res.ok) {
+      const d = await res.json();
+      portfolioSHA = d.sha;
+    }
+  } catch {}
+}
+
+async function saveToGitHub(commitMsg = "Update portfolio") {
+  // Always save to localStorage first
+  localStorage.setItem(SK_PORT, JSON.stringify(portfolio));
+
+  if (!PAT || !REPO) {
+    // No PAT — fall back to download reminder
+    showToast("⚠ No PAT set — go to ⚙ Settings to enable auto-save", "warn");
+    return;
+  }
+
+  showToast("💾 Saving to GitHub…", "info");
+
+  try {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(portfolio, null, 2))));
+    const body = {
+      message: commitMsg + " · " + new Date().toISOString().slice(0,16).replace("T"," "),
+      content,
+    };
+    if (portfolioSHA) body.sha = portfolioSHA;
+
+    const res = await fetch(`https://api.github.com/repos/${REPO}/contents/portfolio.json`, {
+      method: "PUT",
+      headers: {
+        Authorization: `token ${PAT}`,
+        Accept: "application/vnd.github.v3+json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (res.ok) {
+      const d = await res.json();
+      portfolioSHA = d.content.sha; // update SHA for next save
+      showToast("✓ Saved to GitHub", "ok");
+    } else {
+      const err = await res.json();
+      showToast(`✗ GitHub error: ${err.message}`, "err");
+    }
+  } catch(e) {
+    showToast(`✗ Save failed: ${e.message}`, "err");
+  }
+}
+
+// ── TOAST ────────────────────────────────────────────────
+function showToast(msg, type = "info") {
+  const t = document.getElementById("saveToast");
+  const colors = { ok: "var(--green)", err: "var(--red)", warn: "var(--gold)", info: "var(--blue)" };
+  t.style.display = "block";
+  t.style.borderColor = colors[type] || "var(--bd2)";
+  t.style.color = colors[type] || "var(--text)";
+  t.textContent = msg;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.display = "none"; }, type === "err" ? 5000 : 2500);
+}
+
+// ── SETTINGS ────────────────────────────────────────────
+function saveSettings() {
+  const repo = document.getElementById("settingsRepo").value.trim().replace(/^\/|\/$/g,"");
+  const pat  = document.getElementById("settingsPAT").value.trim();
+  if (repo) { REPO = repo; localStorage.setItem(SK_REPO, REPO); }
+  if (pat)  { PAT  = pat;  localStorage.setItem(SK_PAT,  PAT);  }
+  updatePatStatus();
+  fetchPortfolioSHA();
+  document.getElementById("settingsMsg").innerHTML =
+    `<span style="color:var(--green)">✓ Settings saved. Auto-save to GitHub is now active.</span>`;
+  setTimeout(() => document.getElementById("settingsMsg").innerHTML = "", 3000);
+}
+
+function updatePatStatus() {
+  const el = document.getElementById("patStatus");
+  if (!el) return;
+  if (PAT && REPO) {
+    el.innerHTML = `<span style="color:var(--green)">✓ Active — changes save directly to <strong style="color:var(--text)">${REPO}</strong></span>`;
+  } else if (REPO && !PAT) {
+    el.innerHTML = `<span style="color:var(--gold)">⚠ Repo set but no PAT — add your token above to enable auto-save</span>`;
+  } else {
+    el.innerHTML = `<span style="color:var(--muted)">Not configured</span>`;
+  }
+}
+
+function save() { saveToGitHub(); }
+
+function downloadPortfolio() {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(portfolio,null,2)],{type:"application/json"}));
+  a.download = "portfolio.json"; a.click();
+}
+
+// ── FILTER / SORT ───────────────────────────────────────
+function setFilter(m, btn) {
+  filterMode = m;
+  document.querySelectorAll(".toolbar .chip").forEach(c => {
+    if (["all","winners","losers","near tp"].includes(c.textContent.toLowerCase().trim())) c.classList.remove("on");
+  });
+  btn.classList.add("on"); renderOpen();
+}
+function setSort(k, btn) {
+  sortKey = k;
+  document.querySelectorAll(".toolbar .chip").forEach(c => {
+    if (["date","p&l","return","tp%","hold"].includes(c.textContent.toLowerCase().trim())) c.classList.remove("on");
+  });
+  btn.classList.add("on"); renderOpen();
+}
+
+// ── TABS ────────────────────────────────────────────────
+function showTab(name, btn) {
+  ["open","add","closed","chart","guide","settings"].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = t === name ? "" : "none";
+  });
+  document.querySelectorAll(".tb").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on");
+  if (name === "chart") renderCharts();
+  if (name === "settings") {
+    if (REPO) document.getElementById("settingsRepo").value = REPO;
+    if (PAT)  document.getElementById("settingsPAT").value  = PAT;
+    updatePatStatus();
+  }
+}
+
+// ── STATUS ──────────────────────────────────────────────
+function setStatus(s, msg) {
+  document.getElementById("stext").textContent = msg;
+  document.getElementById("lastUpd").textContent = msg;
+  const d = document.getElementById("sdot");
+  d.className = "sdot " + ({g:"sdot-g",r:"sdot-r",o:"sdot-o",grey:"sdot-grey"}[s]||"sdot-grey");
+}
+
+// ── HELPERS ─────────────────────────────────────────────
+function holdDays(d) { return Math.floor((Date.now()-new Date(d))/86400000); }
+function holdLabel(d) {
+  if (d<1)  return "Today";
+  if (d<7)  return `${d}d`;
+  if (d<30) return `${Math.floor(d/7)}w ${d%7}d`;
+  return `${Math.floor(d/30)}mo ${d%30}d`;
+}
+function fmt(n)  { return (n>=0?"+":"") + n.toFixed(2); }
+function fmtP(n) { return (n>=0?"+":"") + n.toFixed(2) + "%"; }
+function timeAgo(iso) {
+  const m = Math.floor((Date.now()-new Date(iso))/60000);
+  if (m<2)    return "just now";
+  if (m<60)   return `${m}m ago`;
+  if (m<1440) return `${Math.floor(m/60)}h ago`;
+  return `${Math.floor(m/1440)}d ago`;
+}
+</script>
+</body>
+</html>
