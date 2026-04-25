@@ -245,6 +245,7 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
   <div class="tabs">
     <button class="tb on" onclick="showTab('open',this)">Open <span id="cntOpen">(0)</span></button>
     <button class="tb" onclick="showTab('add',this)">+ Add</button>
+    <button class="tb" onclick="showTab('hits',this)">🎯 TP/SL Hits <span id="cntHits">(0)</span></button>
     <button class="tb" onclick="showTab('closed',this)">Closed <span id="cntClosed">(0)</span></button>
     <button class="tb" onclick="showTab('chart',this)">Equity Curve</button>
     <button class="tb" onclick="showTab('guide',this)">Guide</button>
@@ -263,26 +264,21 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
       <button class="chip" onclick="setFilter('win',this)">Winners</button>
       <button class="chip" onclick="setFilter('loss',this)">Losers</button>
       <button class="chip" onclick="setFilter('near',this)">🎯 Near TP</button>
-      <span class="tl-lbl" style="margin-left:10px">Sort:</span>
-      <button class="chip on" onclick="setSort('date',this)">Date</button>
-      <button class="chip" onclick="setSort('pnl',this)">P&L</button>
-      <button class="chip" onclick="setSort('ret',this)">Return</button>
-      <button class="chip" onclick="setSort('tp',this)">TP%</button>
-      <button class="chip" onclick="setSort('hold',this)">Hold</button>
+      <span class="tl-lbl" style="margin-left:10px;color:var(--muted2);font-size:0.55rem">Click column headers to sort ↑↓</span>
     </div>
     <div class="tw">
       <table>
-        <thead><tr>
-          <th>Ticker</th>
-          <th>Entry</th>
-          <th>Current</th>
-          <th>Invested</th>
-          <th>P&L</th>
-          <th>Ret%</th>
-          <th>TP Progress</th>
-          <th>SL</th>
-          <th>R/R</th>
-          <th>Hold</th>
+        <thead><tr id="theadRow">
+          <th onclick="colSort('ticker')" style="cursor:pointer;text-align:left">Ticker <span id="sh-ticker"></span></th>
+          <th onclick="colSort('entry')"  style="cursor:pointer">Entry <span id="sh-entry"></span></th>
+          <th onclick="colSort('current')" style="cursor:pointer">Current <span id="sh-current"></span></th>
+          <th onclick="colSort('invest')" style="cursor:pointer">Invested <span id="sh-invest"></span></th>
+          <th onclick="colSort('pnl')"   style="cursor:pointer">P&amp;L <span id="sh-pnl"></span></th>
+          <th onclick="colSort('ret')"   style="cursor:pointer">Ret% <span id="sh-ret"></span></th>
+          <th onclick="colSort('tp')"    style="cursor:pointer">TP Progress <span id="sh-tp"></span></th>
+          <th onclick="colSort('sl')"    style="cursor:pointer">SL <span id="sh-sl"></span></th>
+          <th onclick="colSort('rr')"    style="cursor:pointer">R/R <span id="sh-rr"></span></th>
+          <th onclick="colSort('hold')"  style="cursor:pointer">Hold <span id="sh-hold"></span></th>
           <th>Actions</th>
         </tr></thead>
         <tbody id="openBody"></tbody>
@@ -290,6 +286,19 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
       </table>
     </div>
     <div class="hl-row" id="hlRow" style="display:none"></div>
+  </div>
+
+  <!-- TP/SL HITS TAB -->
+  <div id="tab-hits" style="display:none" class="fi">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+      <div style="font-size:0.62rem;color:var(--muted)">Stocks where TP or SL was reached after your entry date — scanned from price history</div>
+      <button class="refresh-btn" onclick="scanHits()" id="scanBtn">
+        <span id="scanIcon">⟳</span> Scan Now
+      </button>
+    </div>
+    <div id="hitsContent">
+      <div class="empty"><div class="empty-icon">🔍</div><p>Click <strong>Scan Now</strong> to check which positions hit TP or SL since entry.</p></div>
+    </div>
   </div>
 
   <!-- ADD TAB -->
@@ -484,7 +493,8 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
           <div class="dm-cur" id="dmCurPrice">—</div>
           <div class="dm-change" id="dmChange"></div>
         </div>
-        <button onclick="refreshDetailPrice()" id="dmRefreshBtn" title="Refresh price" style="background:none;border:1px solid var(--bd);color:var(--muted);padding:5px 9px;border-radius:6px;cursor:pointer;font-size:0.9rem;transition:all 0.15s" onmouseover="this.style.color='var(--green)';this.style.borderColor='var(--green)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--bd)'">⟳</div>
+        <button onclick="refreshDetailPrice()" id="dmRefreshBtn" title="Refresh price" style="background:none;border:1px solid var(--bd);color:var(--muted);padding:5px 9px;border-radius:6px;cursor:pointer;font-size:0.9rem;transition:all 0.15s" onmouseover="this.style.color='var(--green)';this.style.borderColor='var(--green)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--bd)'">⟳</button>
+        <button id="dmTVBtn" title="Open on TradingView" style="background:none;border:1px solid var(--bd);color:var(--muted);padding:5px 9px;border-radius:6px;cursor:pointer;font-size:0.78rem;transition:all 0.15s" onmouseover="this.style.color='#2962ff';this.style.borderColor='#2962ff'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--bd)'">📊 TV</button>
         <button class="modal-close" style="position:static" onclick="document.getElementById('detailModal').classList.remove('open')">✕</button>
       </div>
     </div>
@@ -529,6 +539,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (REPO) document.getElementById("settingsRepo").value = REPO;
   if (PAT)  document.getElementById("settingsPAT").value  = PAT;
   updatePatStatus();
+  updateSortArrows();
   renderOpen();
 });
 
@@ -632,12 +643,23 @@ function renderOpen() {
   if (filterMode === "near") list = list.filter(p => calc(p).nearTP);
 
   list.sort((a,b) => {
-    if (sortKey === "date") return new Date(b.entryDate) - new Date(a.entryDate);
-    if (sortKey === "pnl")  return calc(b).pnl  - calc(a).pnl;
-    if (sortKey === "ret")  return calc(b).ret  - calc(a).ret;
-    if (sortKey === "tp")   return (calc(b).tpPct??-1) - (calc(a).tpPct??-1);
-    if (sortKey === "hold") return holdDays(a.entryDate) - holdDays(b.entryDate);
-    return 0;
+    let av, bv;
+    const ca = calc(a), cb = calc(b);
+    switch(colSortKey) {
+      case "ticker":  av=a.ticker;          bv=b.ticker;          break;
+      case "entry":   av=a.entry;           bv=b.entry;           break;
+      case "current": av=ca.pr??0;          bv=cb.pr??0;          break;
+      case "invest":  av=a.invest;          bv=b.invest;          break;
+      case "pnl":     av=ca.pnl;            bv=cb.pnl;            break;
+      case "ret":     av=ca.ret;            bv=cb.ret;            break;
+      case "tp":      av=ca.tpPct??-1;      bv=cb.tpPct??-1;      break;
+      case "sl":      av=a.sl??0;           bv=b.sl??0;           break;
+      case "rr":      av=parseFloat(ca.rr??0); bv=parseFloat(cb.rr??0); break;
+      case "hold":    av=holdDays(a.entryDate); bv=holdDays(b.entryDate); break;
+      default:        av=new Date(a.entryDate); bv=new Date(b.entryDate);
+    }
+    if (typeof av === "string") return colSortDir * av.localeCompare(bv);
+    return colSortDir * (bv - av);
   });
 
   const tbody = document.getElementById("openBody");
@@ -1004,7 +1026,8 @@ async function openDetail(id) {
   ].map(s=>`<div class="dm-stat"><div class="dm-stat-lbl">${s.lbl}</div><div class="dm-stat-val" style="color:${s.col}">${s.val}</div></div>`).join("");
 
   document.getElementById("detailModal").classList.add("open");
-  loadDetailChart(pos);
+  // Wire TV button
+  document.getElementById("dmTVBtn").onclick = () => openTV(pos.ticker);
   loadDetailNews(pos.ticker);
 }
 
@@ -1296,25 +1319,170 @@ function downloadPortfolio() {
   a.download = "portfolio.json"; a.click();
 }
 
+// ── COLUMN SORT ──────────────────────────────────────────
+let colSortKey = "date";
+let colSortDir = -1; // -1 = desc, 1 = asc
+
+function colSort(key) {
+  if (colSortKey === key) colSortDir *= -1;
+  else { colSortKey = key; colSortDir = -1; }
+  updateSortArrows();
+  renderOpen();
+}
+
+function updateSortArrows() {
+  const cols = ["ticker","entry","current","invest","pnl","ret","tp","sl","rr","hold"];
+  cols.forEach(c => {
+    const el = document.getElementById(`sh-${c}`);
+    if (!el) return;
+    el.textContent = c === colSortKey ? (colSortDir === -1 ? " ↓" : " ↑") : "";
+  });
+  // style active header
+  document.querySelectorAll("#theadRow th").forEach(th => {
+    th.style.color = "";
+  });
+}
+
 // ── FILTER / SORT ───────────────────────────────────────
 function setFilter(m, btn) {
   filterMode = m;
   document.querySelectorAll(".toolbar .chip").forEach(c => {
-    if (["all","winners","losers","near tp"].includes(c.textContent.toLowerCase().trim())) c.classList.remove("on");
+    if (["all","winners","losers","🎯 near tp"].includes(c.textContent.toLowerCase().trim())) c.classList.remove("on");
   });
   btn.classList.add("on"); renderOpen();
 }
-function setSort(k, btn) {
-  sortKey = k;
-  document.querySelectorAll(".toolbar .chip").forEach(c => {
-    if (["date","p&l","return","tp%","hold"].includes(c.textContent.toLowerCase().trim())) c.classList.remove("on");
-  });
-  btn.classList.add("on"); renderOpen();
+function setSort(k) { colSort(k); }
+
+// ── SCAN TP/SL HITS ──────────────────────────────────────
+async function scanHits() {
+  const btn  = document.getElementById("scanBtn");
+  const icon = document.getElementById("scanIcon");
+  btn.disabled = true;
+  icon.className = "spin";
+  document.getElementById("hitsContent").innerHTML =
+    `<div style="color:var(--muted);font-size:0.78rem;padding:20px 0">Scanning price history for all open positions…</div>`;
+
+  const open = portfolio.positions.filter(p => !p.closed && (p.tp || p.sl));
+  const results = [];
+
+  for (const pos of open) {
+    try {
+      const from  = Math.floor(new Date(pos.entryDate).getTime()/1000);
+      const to    = Math.floor(Date.now()/1000);
+      const url   = `https://query1.finance.yahoo.com/v8/finance/chart/${pos.ticker}?interval=1d&period1=${from}&period2=${to}`;
+      const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+      const res   = await fetch(proxy);
+      const outer = await res.json();
+      const data  = JSON.parse(outer.contents);
+      const result= data?.chart?.result?.[0];
+      if (!result) continue;
+
+      const timestamps = result.timestamp || [];
+      const highs  = result.indicators?.quote?.[0]?.high  || [];
+      const lows   = result.indicators?.quote?.[0]?.low   || [];
+      const closes = result.indicators?.quote?.[0]?.close || [];
+
+      let tpHitDate = null, slHitDate = null;
+      let tpHitPrice = null, slHitPrice = null;
+
+      for (let i = 0; i < timestamps.length; i++) {
+        const date  = new Date(timestamps[i]*1000).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+        const high  = highs[i];
+        const low   = lows[i];
+
+        if (pos.tp && !tpHitDate && high !== null && high >= pos.tp) {
+          tpHitDate  = date;
+          tpHitPrice = high;
+        }
+        if (pos.sl && !slHitDate && low !== null && low <= pos.sl) {
+          slHitDate  = date;
+          slHitPrice = low;
+        }
+      }
+
+      const currentPrice = closes.filter(v=>v!==null).pop() || null;
+
+      if (tpHitDate || slHitDate) {
+        results.push({ pos, tpHitDate, tpHitPrice, slHitDate, slHitPrice, currentPrice });
+      }
+    } catch(e) {
+      // skip failed tickers silently
+    }
+    await new Promise(r=>setTimeout(r,250)); // throttle
+  }
+
+  // Update count badge
+  document.getElementById("cntHits").textContent = `(${results.length})`;
+  renderHits(results, open.length);
+
+  btn.disabled = false;
+  icon.className = "";
+}
+
+function renderHits(results, scanned) {
+  const el = document.getElementById("hitsContent");
+  if (results.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><p>No TP or SL hits found across ${scanned} scanned positions.</p></div>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <div style="font-size:0.68rem;color:var(--muted);margin-bottom:14px">
+      Found <strong style="color:var(--text)">${results.length}</strong> hits across ${scanned} scanned positions
+    </div>
+    <div class="tw"><table style="min-width:700px">
+      <thead><tr>
+        <th style="text-align:left">Ticker</th>
+        <th>Entry</th>
+        <th>Current</th>
+        <th>TP Target</th>
+        <th>TP Hit Date</th>
+        <th>SL Target</th>
+        <th>SL Hit Date</th>
+        <th>P&L Now</th>
+      </tr></thead>
+      <tbody>
+      ${results.map(({pos, tpHitDate, tpHitPrice, slHitDate, slHitPrice, currentPrice}) => {
+        const shares = pos.invest / pos.entry;
+        const cur    = currentPrice || pos.entry;
+        const pnl    = shares * cur - pos.invest;
+        const win    = pnl >= 0;
+        const tpFirst = tpHitDate && slHitDate
+          ? new Date(tpHitDate) < new Date(slHitDate) ? "tp" : "sl"
+          : tpHitDate ? "tp" : "sl";
+        return `
+        <tr>
+          <td>
+            <div class="tc" style="gap:7px">
+              <div class="tc-bar" style="background:${tpFirst==="tp"?"var(--green)":"var(--red)"}"></div>
+              <div>
+                <div class="tc-name" style="cursor:pointer" onclick="openDetail('${pos.id}')">${pos.ticker}</div>
+                ${pos.notes?`<div class="tc-tag">${pos.notes}</div>`:""}
+              </div>
+            </div>
+          </td>
+          <td style="color:var(--blue)">$${pos.entry}</td>
+          <td style="color:${win?"var(--green)":"var(--red)"}">$${cur.toFixed(4)}</td>
+          <td style="color:var(--gold)">${pos.tp ? "$"+pos.tp : "—"}</td>
+          <td>${tpHitDate
+            ? `<span style="color:var(--green);font-size:0.72rem">✅ ${tpHitDate}<br><span style="color:var(--muted);font-size:0.6rem">high $${tpHitPrice?.toFixed(4)||""}</span></span>`
+            : `<span style="color:var(--muted2)">—</span>`}
+          </td>
+          <td style="color:var(--red)">${pos.sl ? "$"+pos.sl : "—"}</td>
+          <td>${slHitDate
+            ? `<span style="color:var(--red);font-size:0.72rem">🛑 ${slHitDate}<br><span style="color:var(--muted);font-size:0.6rem">low $${slHitPrice?.toFixed(4)||""}</span></span>`
+            : `<span style="color:var(--muted2)">—</span>`}
+          </td>
+          <td style="color:${win?"var(--green)":"var(--red)"};font-weight:500">${fmt(pnl)}</td>
+        </tr>`;
+      }).join("")}
+      </tbody>
+    </table></div>`;
 }
 
 // ── TABS ────────────────────────────────────────────────
 function showTab(name, btn) {
-  ["open","add","closed","chart","guide","settings"].forEach(t => {
+  ["open","add","hits","closed","chart","guide","settings"].forEach(t => {
     document.getElementById(`tab-${t}`).style.display = t === name ? "" : "none";
   });
   document.querySelectorAll(".tb").forEach(b => b.classList.remove("on"));
