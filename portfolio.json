@@ -377,6 +377,20 @@
       "closed": false,
       "closePrice": null,
       "closeDate": null
+    },
+    {
+      "id": "1777150360667",
+      "ticker": "FBIN",
+      "entry": 40.11,
+      "entryDate": "2026-04-20",
+      "invest": 500,
+      "tp": 49.43,
+      "sl": 38.5,
+      "notes": "",
+      "name": "FBIN",
+      "closed": false,
+      "closePrice": null,
+      "closeDate": null
     }
   ]
 }
