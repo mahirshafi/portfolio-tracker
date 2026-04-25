@@ -164,6 +164,7 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
 /* TV BUTTON */
 .ab.tv:hover{border-color:#2962ff;color:#2962ff}
 .ab.edit:hover{border-color:var(--blue);color:var(--blue)}
+.ab.ref:hover{border-color:var(--green);color:var(--green)}
 
 /* EDIT MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
@@ -173,6 +174,27 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
 .modal-ticker{font-size:1.1rem;color:#deeeff;font-weight:600;margin-bottom:20px}
 .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;line-height:1}
 .modal-close:hover{color:var(--text)}
+
+/* DETAIL MODAL */
+.detail-modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;width:min(780px,96vw);max-height:92vh;overflow-y:auto;animation:fi 0.22s ease both;position:relative}
+.dm-header{padding:22px 24px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.dm-ticker{font-size:1.5rem;font-weight:600;color:#deeeff;letter-spacing:-0.02em}
+.dm-name{font-size:0.65rem;color:var(--muted);margin-top:3px}
+.dm-price{text-align:right}
+.dm-cur{font-size:1.3rem;font-weight:500}
+.dm-change{font-size:0.7rem;margin-top:2px}
+.dm-body{padding:20px 24px}
+.dm-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:20px}
+.dm-stat{background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:10px 13px}
+.dm-stat-lbl{font-size:0.55rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px}
+.dm-stat-val{font-size:0.9rem;font-weight:500}
+.dm-section{font-size:0.58rem;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;margin:18px 0 10px}
+.news-item{background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:border-color 0.15s}
+.news-item:hover{border-color:var(--bd2)}
+.news-title{font-size:0.75rem;color:var(--text);line-height:1.4;margin-bottom:5px}
+.news-meta{font-size:0.6rem;color:var(--muted)}
+.tp-hit-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,223,162,0.12);border:1px solid rgba(0,223,162,0.3);color:var(--green);padding:4px 10px;border-radius:6px;font-size:0.65rem;margin-bottom:14px}
+.tp-miss-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,204,0,0.1);border:1px solid rgba(255,204,0,0.3);color:var(--gold);padding:4px 10px;border-radius:6px;font-size:0.65rem;margin-bottom:14px}
 
 @media(max-width:640px){
   .hdr,.main,.summary{padding-left:14px;padding-right:14px}
@@ -449,6 +471,35 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
   </div>
 </div>
 
+<!-- STOCK DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal" onclick="closeDetailModal(event)">
+  <div class="detail-modal" id="detailModalInner">
+    <div class="dm-header">
+      <div>
+        <div class="dm-ticker" id="dmTicker">—</div>
+        <div class="dm-name" id="dmName"></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div class="dm-price">
+          <div class="dm-cur" id="dmCurPrice">—</div>
+          <div class="dm-change" id="dmChange"></div>
+        </div>
+        <button onclick="refreshDetailPrice()" id="dmRefreshBtn" title="Refresh price" style="background:none;border:1px solid var(--bd);color:var(--muted);padding:5px 9px;border-radius:6px;cursor:pointer;font-size:0.9rem;transition:all 0.15s" onmouseover="this.style.color='var(--green)';this.style.borderColor='var(--green)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--bd)'">⟳</div>
+        <button class="modal-close" style="position:static" onclick="document.getElementById('detailModal').classList.remove('open')">✕</button>
+      </div>
+    </div>
+    <div class="dm-body">
+      <div id="dmTPBadge"></div>
+      <div class="dm-stats" id="dmStats"></div>
+      <div class="dm-section">Price since entry date</div>
+      <div style="position:relative;height:220px;margin-bottom:4px"><canvas id="dmChart"></canvas></div>
+      <div id="dmChartMsg" style="font-size:0.62rem;color:var(--muted);margin-bottom:16px"></div>
+      <div class="dm-section">Latest News</div>
+      <div id="dmNews"><div style="color:var(--muted);font-size:0.72rem">Loading news…</div></div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── CONFIG ──────────────────────────────────────────────
 const SK_REPO = "pt_repo2";
@@ -602,6 +653,10 @@ function renderOpen() {
   tbody.innerHTML = list.map(pos => {
     const { pr, pnl, ret, win, shares, tpPct, tpRemain, nearTP, rr, slPct } = calc(pos);
     const days = holdDays(pos.entryDate);
+    const refreshing = pos._refreshing ? "spin" : "";
+
+    // TP hit check since entry date
+    const tpHitSince = pos.tp && pr !== null && pr >= pos.tp;
 
     // TP bar
     let tpCell = `<span style="color:var(--muted);font-size:0.65rem">—</span>`;
@@ -631,12 +686,12 @@ function renderOpen() {
       : `<span style="color:var(--muted2)">—</span>`;
 
     return `
-    <tr class="${nearTP ? "near-tp" : ""}">
+    <tr class="${nearTP ? "near-tp" : ""}" onclick="openDetail('${pos.id}')" style="cursor:pointer" title="Click for details">
       <td>
         <div class="tc">
           <div class="tc-bar" style="background:${win ? "var(--green)" : "var(--red)"}"></div>
           <div>
-            <div class="tc-name">${pos.ticker}</div>
+            <div class="tc-name">${pos.ticker} ${tpHitSince ? '<span style="color:var(--green);font-size:0.55rem">✓TP</span>' : ""}</div>
             ${pos.notes ? `<div class="tc-tag">${pos.notes}</div>` : ""}
           </div>
         </div>
@@ -652,8 +707,9 @@ function renderOpen() {
       <td>${slCell}</td>
       <td>${rr ? `<span class="rr">${rr}R</span>` : '<span style="color:var(--muted2)">—</span>'}</td>
       <td style="color:var(--muted);font-size:0.7rem">${holdLabel(days)}</td>
-      <td>
+      <td onclick="event.stopPropagation()">
         <div class="act">
+          <button class="ab ref" onclick="refreshSinglePrice('${pos.id}')" title="Refresh price"><span class="${refreshing}">⟳</span></button>
           <button class="ab tv" onclick="openTV('${pos.ticker}')" title="Open on TradingView">📊</button>
           <button class="ab edit" onclick="openEdit('${pos.id}')" title="Edit position">✏</button>
           <button class="ab close" onclick="closePos('${pos.id}')" title="Close position">✕</button>
@@ -880,6 +936,189 @@ function addPosition() {
 
   saveToGitHub(`Add position: ${ticker}`);
   renderOpen(); renderSummary();
+}
+
+// ── SINGLE PRICE REFRESH ─────────────────────────────────
+async function refreshSinglePrice(id) {
+  const pos = portfolio.positions.find(p => p.id === id);
+  if (!pos) return;
+  pos._refreshing = true;
+  renderOpen();
+  try {
+    const url   = `https://query1.finance.yahoo.com/v8/finance/chart/${pos.ticker}?interval=1d&range=1d`;
+    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const res   = await fetch(proxy);
+    const outer = await res.json();
+    const data  = JSON.parse(outer.contents);
+    const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+    const name  = data?.chart?.result?.[0]?.meta?.shortName || pos.ticker;
+    if (price) {
+      prices[pos.ticker] = { price: +price.toFixed(6), name, ok: true };
+      showToast(`✓ ${pos.ticker} → $${price.toFixed(4)}`, "ok");
+    } else {
+      showToast(`⚠ ${pos.ticker}: no price returned`, "warn");
+    }
+  } catch(e) {
+    showToast(`✗ Refresh failed: ${e.message}`, "err");
+  }
+  pos._refreshing = false;
+  renderOpen(); renderSummary();
+}
+
+// ── STOCK DETAIL MODAL ───────────────────────────────────
+let detailChart = null;
+let detailPosId = null;
+
+async function openDetail(id) {
+  const pos = portfolio.positions.find(p => p.id === id);
+  if (!pos) return;
+  detailPosId = id;
+  const { pr, pnl, ret, win, shares, tpPct, rr } = calc(pos);
+  const days = holdDays(pos.entryDate);
+
+  document.getElementById("dmTicker").textContent    = pos.ticker;
+  document.getElementById("dmName").textContent      = prices[pos.ticker]?.name || pos.ticker;
+  document.getElementById("dmCurPrice").textContent  = pr !== null ? `$${pr.toFixed(4)}` : "—";
+  document.getElementById("dmCurPrice").style.color  = win ? "var(--green)" : "var(--red)";
+  document.getElementById("dmChange").innerHTML      = `<span style="color:${win?"var(--green)":"var(--red)"}">${fmt(pnl)} (${fmtP(ret)})</span>`;
+
+  const tpHit = pos.tp && pr !== null && pr >= pos.tp;
+  document.getElementById("dmTPBadge").innerHTML = pos.tp
+    ? (tpHit
+        ? `<div class="tp-hit-badge">✅ TP Reached! Target $${pos.tp} hit since entry</div>`
+        : `<div class="tp-miss-badge">🎯 TP $${pos.tp} — ${tpPct !== null ? tpPct.toFixed(0)+"% of the way" : "not yet reached"}</div>`)
+    : "";
+
+  document.getElementById("dmStats").innerHTML = [
+    { lbl:"Entry Price", val:`$${pos.entry}`,          col:"var(--blue)" },
+    { lbl:"Invested",    val:`$${pos.invest}`,         col:"var(--text)" },
+    { lbl:"Shares",      val:shares.toFixed(4),        col:"var(--text)" },
+    { lbl:"P&L",         val:fmt(pnl),                 col:win?"var(--green)":"var(--red)" },
+    { lbl:"Return",      val:fmtP(ret),                col:win?"var(--green)":"var(--red)" },
+    { lbl:"Take Profit", val:pos.tp?`$${pos.tp}`:"—", col:"var(--gold)" },
+    { lbl:"Stop Loss",   val:pos.sl?`$${pos.sl}`:"—", col:"var(--red)" },
+    { lbl:"R/R Ratio",   val:rr?`${rr}R`:"—",         col:"var(--blue)" },
+    { lbl:"Hold Time",   val:holdLabel(days),           col:"var(--text)" },
+    { lbl:"Entry Date",  val:pos.entryDate,             col:"var(--muted)" },
+    { lbl:"Notes",       val:pos.notes||"—",            col:"var(--muted)" },
+  ].map(s=>`<div class="dm-stat"><div class="dm-stat-lbl">${s.lbl}</div><div class="dm-stat-val" style="color:${s.col}">${s.val}</div></div>`).join("");
+
+  document.getElementById("detailModal").classList.add("open");
+  loadDetailChart(pos);
+  loadDetailNews(pos.ticker);
+}
+
+async function loadDetailChart(pos) {
+  document.getElementById("dmChartMsg").textContent = "Loading price history…";
+  if (detailChart) { detailChart.destroy(); detailChart = null; }
+  try {
+    const from  = Math.floor(new Date(pos.entryDate).getTime()/1000);
+    const to    = Math.floor(Date.now()/1000);
+    const url   = `https://query1.finance.yahoo.com/v8/finance/chart/${pos.ticker}?interval=1d&period1=${from}&period2=${to}`;
+    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const res   = await fetch(proxy);
+    const outer = await res.json();
+    const data  = JSON.parse(outer.contents);
+    const result= data?.chart?.result?.[0];
+    if (!result) throw new Error("No data");
+
+    const timestamps = result.timestamp || [];
+    const closes     = result.indicators?.quote?.[0]?.close || [];
+    const labels     = timestamps.map(t=>new Date(t*1000).toLocaleDateString("en-GB",{month:"short",day:"numeric"}));
+    const values     = closes.map(v=>v?+v.toFixed(4):null);
+
+    const tp = pos.tp || null;
+    let tpHitIdx = -1;
+    if (tp) tpHitIdx = values.findIndex(v=>v!==null && v>=tp);
+
+    const last = values.filter(v=>v!==null).pop() || pos.entry;
+    const lineColor = last >= pos.entry ? "#00dfa2" : "#ff3d5a";
+    const ctx = document.getElementById("dmChart").getContext("2d");
+
+    detailChart = new Chart(ctx, {
+      type:"line",
+      data:{
+        labels,
+        datasets:[{
+          label:pos.ticker,
+          data:values,
+          borderColor:lineColor,
+          backgroundColor:lineColor+"15",
+          fill:true,
+          tension:0.3,
+          pointRadius:values.map((_,i)=>i===tpHitIdx?7:2),
+          pointBackgroundColor:values.map((_,i)=>i===tpHitIdx?"#00dfa2":lineColor),
+          borderWidth:2,
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{
+            afterLabel: ctx=>{
+              const v=ctx.raw;
+              if(!v) return "";
+              const chg=((v-pos.entry)/pos.entry*100).toFixed(2);
+              return `vs Entry: ${chg>=0?"+":""}${chg}%`;
+            }
+          }}
+        },
+        scales:{
+          x:{ticks:{color:"#3a5070",font:{family:"Azeret Mono",size:10},maxTicksLimit:8},grid:{color:"#1a2438"}},
+          y:{ticks:{color:"#3a5070",font:{family:"Azeret Mono",size:10},callback:v=>"$"+v},grid:{color:"#1a2438"}}
+        }
+      }
+    });
+
+    let msg = `${labels.length} trading days since ${pos.entryDate}`;
+    if (tpHitIdx>=0) msg += ` · ✅ TP $${tp} first hit on ${labels[tpHitIdx]}`;
+    document.getElementById("dmChartMsg").textContent = msg;
+  } catch(e) {
+    document.getElementById("dmChartMsg").textContent = `Chart unavailable: ${e.message}`;
+  }
+}
+
+async function loadDetailNews(ticker) {
+  const el = document.getElementById("dmNews");
+  el.innerHTML = `<div style="color:var(--muted);font-size:0.72rem">Loading news…</div>`;
+  try {
+    const url   = `https://query1.finance.yahoo.com/v1/finance/search?q=${ticker}&newsCount=8&quotesCount=0`;
+    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const res   = await fetch(proxy);
+    const outer = await res.json();
+    const data  = JSON.parse(outer.contents);
+    const news  = data?.news || [];
+    if (news.length===0) {
+      el.innerHTML=`<div style="color:var(--muted);font-size:0.72rem">No news found for ${ticker}.</div>`;
+      return;
+    }
+    el.innerHTML = news.slice(0,6).map(n=>{
+      const date = n.providerPublishTime
+        ? new Date(n.providerPublishTime*1000).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})
+        : "";
+      return `<div class="news-item" onclick="window.open('${n.link}','_blank')">
+        <div class="news-title">${n.title}</div>
+        <div class="news-meta">${n.publisher||""} ${date?"· "+date:""}</div>
+      </div>`;
+    }).join("");
+  } catch(e) {
+    el.innerHTML=`<div style="color:var(--muted);font-size:0.72rem">News unavailable.</div>`;
+  }
+}
+
+async function refreshDetailPrice() {
+  if (!detailPosId) return;
+  const btn = document.getElementById("dmRefreshBtn");
+  btn.innerHTML = `<span class="spin">⟳</span>`;
+  await refreshSinglePrice(detailPosId);
+  btn.innerHTML = "⟳";
+  openDetail(detailPosId);
+}
+
+function closeDetailModal(e) {
+  if (e.target===document.getElementById("detailModal"))
+    document.getElementById("detailModal").classList.remove("open");
 }
 
 // ── EDIT ────────────────────────────────────────────────
