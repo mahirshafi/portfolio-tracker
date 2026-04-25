@@ -27,6 +27,20 @@
       "closeDate": null,
       "tp": 10.88,
       "sl": 6.78
+    },
+    {
+      "id": "1777149434728",
+      "ticker": "RDVT",
+      "entry": 38.12,
+      "entryDate": "2026-04-25",
+      "invest": 500,
+      "tp": 48.29,
+      "sl": 36.26,
+      "notes": "",
+      "name": "RDVT",
+      "closed": false,
+      "closePrice": null,
+      "closeDate": null
     }
   ]
 }
