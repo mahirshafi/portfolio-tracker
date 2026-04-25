@@ -69,6 +69,20 @@
       "closed": false,
       "closePrice": null,
       "closeDate": null
+    },
+    {
+      "id": "1777149577480",
+      "ticker": "EMAT",
+      "entry": 7.6,
+      "entryDate": "2026-04-10",
+      "invest": 500,
+      "tp": 13.5,
+      "sl": 7.25,
+      "notes": "",
+      "name": "EMAT",
+      "closed": false,
+      "closePrice": null,
+      "closeDate": null
     }
   ]
 }
