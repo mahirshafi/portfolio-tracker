@@ -10,7 +10,9 @@
       "name": "FWONA",
       "closed": false,
       "closePrice": null,
-      "closeDate": null
+      "closeDate": null,
+      "tp": 88,
+      "sl": 76.39
     },
     {
       "id": "1777128757961",
