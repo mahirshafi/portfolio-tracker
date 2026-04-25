@@ -585,26 +585,64 @@ async function loadAll() {
   icon.className = "spin";
   setStatus("grey","Fetching from GitHub…");
 
+  // Helper: fetch with timeout
+  async function fetchWithTimeout(url, ms=8000) {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), ms);
+    try {
+      const r = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(tid);
+      return r;
+    } catch(e) {
+      clearTimeout(tid);
+      throw e;
+    }
+  }
+
   try {
     const base = `https://raw.githubusercontent.com/${REPO}/main`;
-    const pRes = await fetch(`${base}/portfolio.json?t=${Date.now()}`);
-    if (pRes.ok) {
-      portfolio = await pRes.json();
-      localStorage.setItem(SK_PORT, JSON.stringify(portfolio));
+
+    // Load portfolio.json
+    try {
+      const pRes = await fetchWithTimeout(`${base}/portfolio.json?t=${Date.now()}`);
+      if (pRes.ok) {
+        portfolio = await pRes.json();
+        localStorage.setItem(SK_PORT, JSON.stringify(portfolio));
+      } else {
+        // Fallback to localStorage
+        const local = localStorage.getItem(SK_PORT);
+        if (local) portfolio = JSON.parse(local);
+        setStatus("o", `portfolio.json fetch failed (${pRes.status}) — using cached data`);
+      }
+    } catch(e) {
+      // Timeout or network error — use localStorage
+      const local = localStorage.getItem(SK_PORT);
+      if (local) { portfolio = JSON.parse(local); }
+      setStatus("o", `GitHub unreachable — using cached portfolio (${portfolio.positions?.length||0} positions)`);
     }
-    // Also fetch SHA via GitHub API (needed for updating file)
+
     if (PAT) fetchPortfolioSHA();
-    const prRes = await fetch(`${base}/prices.json?t=${Date.now()}`);
-    if (prRes.ok) {
-      const d = await prRes.json();
-      prices   = d.prices || {};
-      pricesTs = d.updated;
-      setStatus("g", pricesTs ? `Prices updated ${timeAgo(pricesTs)}` : "Prices loaded");
-    } else {
-      setStatus("o","prices.json not found — run the GitHub Action first");
+
+    // Load prices.json
+    try {
+      const prRes = await fetchWithTimeout(`${base}/prices.json?t=${Date.now()}`);
+      if (prRes.ok) {
+        const d = await prRes.json();
+        prices   = d.prices || {};
+        pricesTs = d.updated;
+        setStatus("g", pricesTs ? `Prices updated ${timeAgo(pricesTs)}` : "Prices loaded");
+      } else {
+        setStatus("o","prices.json not found — run the GitHub Action first");
+      }
+    } catch(e) {
+      setStatus("o","Could not load prices — showing entry prices");
     }
+
   } catch(e) {
     setStatus("r",`Load failed: ${e.message}`);
+    // Still try to render from localStorage
+    const local = localStorage.getItem(SK_PORT);
+    if (local) portfolio = JSON.parse(local);
   }
 
   btn.disabled = false;
