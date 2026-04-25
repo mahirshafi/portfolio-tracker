@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Portfolio Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+/* ── RESET & BASE ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:        #070b10;
+  --surface:   #0c1018;
+  --surface2:  #111820;
+  --border:    #18222e;
+  --border2:   #1e2d3d;
+  --text:      #c8d8e8;
+  --muted:     #3d5468;
+  --muted2:    #253545;
+  --green:     #00d97e;
+  --red:       #f04060;
+  --blue:      #3b9eff;
+  --gold:      #f0b429;
+  --mono:      'IBM Plex Mono', monospace;
+  --sans:      'IBM Plex Sans', sans-serif;
+}
+html { font-size: 14px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+a { color: var(--blue); }
+input, select, button { font-family: var(--mono); outline: none; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── HEADER ───────────────────────────────────────────── */
+.header {
+  background: linear-gradient(180deg, #0c1520 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 22px 28px 18px;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-top {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; max-width: 1100px; margin: 0 auto;
+}
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand-title {
+  font-size: 1.25rem; font-weight: 600; color: #e8f2ff;
+  letter-spacing: -0.03em;
+}
+.brand-sub { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+/* ── SUMMARY STRIP ────────────────────────────────────── */
+.summary-strip {
+  max-width: 1100px; margin: 20px auto 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  padding: 0 28px;
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 16px;
+}
+.stat-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 5px; }
+.stat-value { font-size: 1.15rem; font-weight: 500; }
+.c-green { color: var(--green); }
+.c-red   { color: var(--red); }
+.c-blue  { color: var(--blue); }
+.c-gold  { color: var(--gold); }
+.c-text  { color: var(--text); }
+
+/* ── MAIN LAYOUT ──────────────────────────────────────── */
+.main { max-width: 1100px; margin: 24px auto 0; padding: 0 28px; }
+
+/* ── TABS ─────────────────────────────────────────────── */
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 22px; }
+.tab-btn {
+  background: none; border: none; color: var(--muted);
+  padding: 9px 20px; font-size: 0.72rem; letter-spacing: 0.1em;
+  text-transform: uppercase; border-bottom: 2px solid transparent;
+  cursor: pointer; transition: all 0.2s; margin-bottom: -1px;
+}
+.tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+.tab-btn:hover:not(.active) { color: var(--text); }
+
+/* ── TOOLBAR ──────────────────────────────────────────── */
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+.toolbar-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-right: 2px; }
+.chip {
+  background: none; border: 1px solid var(--border);
+  color: var(--muted); padding: 4px 13px; border-radius: 99px;
+  font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.18s;
+}
+.chip.active, .chip:hover { background: var(--surface2); border-color: var(--border2); color: var(--text); }
+.chip.active { border-color: var(--blue); color: var(--blue); }
+
+/* ── TABLE ────────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+table { width: 100%; border-collapse: collapse; min-width: 820px; font-size: 0.8rem; }
+thead tr { background: var(--surface); }
+th {
+  padding: 10px 14px; text-align: right;
+  font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); font-weight: 400; border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+th:first-child { text-align: left; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--surface); }
+td { padding: 11px 14px; text-align: right; }
+td:first-child { text-align: left; }
+tfoot tr { background: var(--surface); border-top: 2px solid var(--border2); }
+tfoot td { padding: 10px 14px; text-align: right; font-weight: 500; font-size: 0.78rem; }
+tfoot td:first-child { text-align: left; color: var(--muted); }
+
+.ticker-cell { display: flex; align-items: center; gap: 10px; }
+.side-bar { width: 3px; height: 32px; border-radius: 2px; flex-shrink: 0; }
+.ticker-name { font-weight: 500; font-size: 0.88rem; color: #e0ecff; }
+.ticker-full { font-size: 0.62rem; color: var(--muted); margin-top: 2px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pill {
+  display: inline-block; padding: 2px 8px; border-radius: 99px;
+  font-size: 0.65rem; font-weight: 500;
+}
+.pill-green { background: rgba(0,217,126,0.1); color: var(--green); }
+.pill-red   { background: rgba(240,64,96,0.1);  color: var(--red); }
+
+.act-btn {
+  background: none; border: 1px solid var(--border);
+  color: var(--muted); padding: 3px 9px; border-radius: 5px;
+  font-size: 0.65rem; cursor: pointer; transition: all 0.15s;
+  white-space: nowrap;
+}
+.act-btn:hover { border-color: var(--border2); color: var(--text); }
+.act-btn.danger:hover { border-color: var(--red); color: var(--red); }
+.act-btn.close-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── ADD FORM ─────────────────────────────────────────── */
+.form-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 28px; max-width: 520px;
+}
+.form-title { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 20px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-field label { display: block; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+.form-field input {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 12px; color: var(--text); font-size: 0.82rem;
+  transition: border-color 0.15s;
+}
+.form-field input:focus { border-color: var(--blue); }
+.form-field.full { grid-column: 1 / -1; }
+.form-hint { font-size: 0.62rem; color: var(--muted2); margin-top: 12px; line-height: 1.6; }
+.submit-btn {
+  width: 100%; margin-top: 18px; padding: 12px;
+  background: #112040; border: 1px solid #1e4080;
+  color: var(--blue); border-radius: 9px; font-size: 0.82rem;
+  cursor: pointer; transition: all 0.2s; letter-spacing: 0.04em;
+}
+.submit-btn:hover { background: #162a55; }
+.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── STATUS BAR ───────────────────────────────────────── */
+.status-bar {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.68rem; color: var(--muted); margin-bottom: 14px;
+}
+.status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.dot-red   { background: var(--red); }
+.dot-grey  { background: var(--muted); }
+
+/* ── EMPTY STATE ──────────────────────────────────────── */
+.empty { text-align: center; padding: 70px 20px; color: var(--muted); }
+.empty-icon { font-size: 2.5rem; margin-bottom: 14px; }
+.empty p { font-size: 0.82rem; line-height: 1.7; }
+
+/* ── BEST/WORST CARDS ─────────────────────────────────── */
+.highlight-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+.hl-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 18px;
+}
+.hl-label { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
+.hl-ticker { font-size: 1.1rem; color: #e0ecff; font-weight: 500; }
+.hl-pnl { font-size: 0.82rem; margin-top: 4px; }
+
+/* ── SPIN ─────────────────────────────────────────────── */
+.spin { display: inline-block; animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.fade-in { animation: fadeIn 0.3s ease both; }
+
+/* ── SETUP BANNER ─────────────────────────────────────── */
+.setup-banner {
+  background: #0c1a2e; border: 1px solid #1a3a5a; border-radius: 12px;
+  padding: 20px 24px; margin-bottom: 24px; font-size: 0.8rem; line-height: 1.8;
+}
+.setup-banner h3 { color: var(--blue); margin-bottom: 10px; font-size: 0.85rem; letter-spacing: 0.04em; }
+.setup-banner code { background: var(--bg); padding: 2px 7px; border-radius: 4px; color: var(--gold); font-size: 0.78rem; }
+
+/* ── RESPONSIVE ───────────────────────────────────────── */
+@media (max-width: 600px) {
+  .header, .main, .summary-strip { padding-left: 16px; padding-right: 16px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .highlight-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="brand">
+      <div>
+        <div class="brand-title">📈 Portfolio Tracker</div>
+        <div class="brand-sub">Powered by GitHub Actions · Yahoo Finance</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span id="lastUpdated" style="font-size:0.65rem;color:var(--muted)">Loading prices…</span>
+      <button class="chip active" onclick="loadAll()" id="refreshBtn">⟳ Refresh</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div class="summary-strip" id="summaryStrip" style="display:none"></div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SETUP BANNER (hidden after config) -->
+  <div class="setup-banner" id="setupBanner">
+    <h3>⚙ First-time setup</h3>
+    Before using this dashboard, set your GitHub repo path below so it can load
+    <code>portfolio.json</code> and <code>prices.json</code> from your repository.<br><br>
+    <strong>Your GitHub Pages URL will be:</strong>
+    <code>https://&lt;username&gt;.github.io/&lt;repo&gt;/</code><br><br>
+    <label style="font-size:0.72rem;color:var(--muted);letter-spacing:0.1em">GITHUB USERNAME / REPO NAME</label><br>
+    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+      <input id="repoInput" type="text" placeholder="mahir/portfolio-tracker"
+        style="background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:0.8rem;width:260px" />
+      <button class="submit-btn" style="width:auto;margin-top:0;padding:8px 18px" onclick="saveRepo()">Save & Load</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('open',this)" id="tabOpen">Open <span id="openCount">(0)</span></button>
+    <button class="tab-btn" onclick="showTab('add',this)">+ Add Position</button>
+    <button class="tab-btn" onclick="showTab('closed',this)" id="tabClosed">Closed <span id="closedCount">(0)</span></button>
+    <button class="tab-btn" onclick="showTab('guide',this)">Guide</button>
+  </div>
+
+  <!-- TAB: OPEN POSITIONS -->
+  <div id="tab-open" class="fade-in">
+    <div class="status-bar">
+      <div class="status-dot" id="statusDot" style="background:var(--muted)"></div>
+      <span id="statusText">Loading…</span>
+    </div>
+    <div class="toolbar">
+      <span class="toolbar-label">Filter:</span>
+      <button class="chip active" onclick="setFilter('all',this)">All</button>
+      <button class="chip" onclick="setFilter('win',this)">Winners</button>
+      <button class="chip" onclick="setFilter('loss',this)">Losers</button>
+      <span class="toolbar-label" style="margin-left:12px">Sort:</span>
+      <button class="chip active" onclick="setSort('date',this)">Date</button>
+      <button class="chip" onclick="setSort('pnl',this)">P&amp;L</button>
+      <button class="chip" onclick="setSort('ret',this)">Return %</button>
+      <button class="chip" onclick="setSort('hold',this)">Hold Days</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>Entry $</th>
+            <th>Current $</th>
+            <th>Invested</th>
+            <th>Shares</th>
+            <th>P&amp;L $</th>
+            <th>Return</th>
+            <th>Hold</th>
+            <th>Entry Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="openBody"></tbody>
+        <tfoot id="openFoot"></tfoot>
+      </table>
+    </div>
+    <div class="highlight-row" id="hlRow" style="display:none"></div>
+  </div>
+
+  <!-- TAB: ADD -->
+  <div id="tab-add" style="display:none" class="fade-in">
+    <div class="form-card">
+      <div class="form-title">New Position</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Ticker Symbol *</label>
+          <input id="fTicker" type="text" placeholder="AAPL, EURUSD=X, BTC-USD" />
+        </div>
+        <div class="form-field">
+          <label>Entry Price ($) *</label>
+          <input id="fEntry" type="number" step="any" placeholder="79.09" />
+        </div>
+        <div class="form-field">
+          <label>Entry Date *</label>
+          <input id="fDate" type="date" />
+        </div>
+        <div class="form-field">
+          <label>Amount Invested ($)</label>
+          <input id="fInvest" type="number" step="any" placeholder="500" />
+        </div>
+        <div class="form-field full">
+          <label>Notes (optional)</label>
+          <input id="fNotes" type="text" placeholder="e.g. COT setup, earnings play…" />
+        </div>
+      </div>
+      <div class="form-hint">
+        📌 Ticker formats: Stocks → <code>AAPL</code> &nbsp;|&nbsp;
+        Forex → <code>EURUSD=X</code> &nbsp;|&nbsp;
+        Crypto → <code>BTC-USD</code> &nbsp;|&nbsp;
+        Indices → <code>^GSPC</code>
+      </div>
+      <button class="submit-btn" id="addBtn" onclick="addPosition()">Add Position → Save to portfolio.json</button>
+      <div id="addMsg" style="font-size:0.7rem;margin-top:10px;min-height:18px"></div>
+    </div>
+
+    <div style="margin-top:24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;max-width:520px">
+      <div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:12px">How adding works</div>
+      <div style="font-size:0.78rem;line-height:1.9;color:#6a8aaa">
+        1. Fill in the form and click Add Position.<br>
+        2. The position is saved to <code style="color:var(--gold)">portfolio.json</code> in your browser.<br>
+        3. <strong style="color:var(--text)">Download portfolio.json</strong> (button below) and commit it to your GitHub repo.<br>
+        4. GitHub Actions will fetch the price automatically on next run.<br>
+        5. You can also trigger the workflow manually in GitHub → Actions → <em>Update Stock Prices</em> → Run workflow.
+      </div>
+      <button class="submit-btn" style="margin-top:14px" onclick="downloadPortfolio()">⬇ Download portfolio.json</button>
+    </div>
+  </div>
+
+  <!-- TAB: CLOSED -->
+  <div id="tab-closed" style="display:none" class="fade-in">
+    <div id="closedContent"></div>
+  </div>
+
+  <!-- TAB: GUIDE -->
+  <div id="tab-guide" style="display:none" class="fade-in">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:680px;line-height:1.9;font-size:0.8rem;color:#6a8aaa">
+      <h3 style="color:var(--blue);margin-bottom:16px;font-size:0.9rem">Setup Guide</h3>
+
+      <p style="color:var(--text);margin-bottom:8px"><strong>Step 1 — Create a GitHub repo</strong></p>
+      <p>Create a new public repo (e.g. <code style="color:var(--gold)">portfolio-tracker</code>) and push all 4 files from the zip you downloaded.</p>
+      <br>
+
+      <p style="color:var(--text);margin-bottom:8px"><strong>Step 2 — Enable GitHub Pages</strong></p>
+      <p>Go to repo <em>Settings → Pages → Source: Deploy from branch → main → / (root)</em>. Save. Your dashboard will be live at <code style="color:var(--gold)">https://username.github.io/portfolio-tracker/</code></p>
+      <br>
+
+      <p style="color:var(--text);margin-bottom:8px"><strong>Step 3 — Set your repo path</strong></p>
+      <p>Open the dashboard, enter your <code style="color:var(--gold)">username/repo</code> in the setup banner and click Save.</p>
+      <br>
+
+      <p style="color:var(--text);margin-bottom:8px"><strong>Step 4 — Add positions</strong></p>
+      <p>Use the <em>Add Position</em> tab. After adding, download <code style="color:var(--gold)">portfolio.json</code> and commit it to your repo.</p>
+      <br>
+
+      <p style="color:var(--text);margin-bottom:8px"><strong>Step 5 — Prices update automatically</strong></p>
+      <p>GitHub Actions runs <strong>Mon–Fri at 22:00 UTC</strong> (after US market close). You can also trigger it manually: GitHub → Actions → <em>Update Stock Prices</em> → Run workflow.</p>
+      <br>
+
+      <p style="color:var(--text);margin-bottom:8px"><strong>Supported ticker formats</strong></p>
+      <table style="width:100%;font-size:0.75rem;border-collapse:collapse">
+        <tr><td style="padding:4px 0;color:var(--gold)">AAPL, TSLA, NVDA</td><td style="padding:4px 0">US Stocks</td></tr>
+        <tr><td style="padding:4px 0;color:var(--gold)">EURUSD=X, GBPUSD=X</td><td style="padding:4px 0">Forex pairs</td></tr>
+        <tr><td style="padding:4px 0;color:var(--gold)">BTC-USD, ETH-USD</td><td style="padding:4px 0">Crypto</td></tr>
+        <tr><td style="padding:4px 0;color:var(--gold)">GC=F, CL=F</td><td style="padding:4px 0">Gold, Oil futures</td></tr>
+        <tr><td style="padding:4px 0;color:var(--gold)">^GSPC, ^NDX</td><td style="padding:4px 0">S&amp;P 500, Nasdaq</td></tr>
+        <tr><td style="padding:4px 0;color:var(--gold)">FWONA, BP.L</td><td style="padding:4px 0">US &amp; London-listed stocks</td></tr>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const STORAGE_KEY_REPO      = "pt_repo";       // "username/repo-name"
+const STORAGE_KEY_PORTFOLIO = "pt_portfolio";  // local copy of portfolio.json
+
+let REPO       = localStorage.getItem(STORAGE_KEY_REPO) || "";
+let portfolio  = JSON.parse(localStorage.getItem(STORAGE_KEY_PORTFOLIO) || '{"positions":[]}');
+let prices     = {};                // loaded from prices.json in repo
+let pricesUpdated = null;
+
+let filterMode = "all";
+let sortKey    = "date";
+let currentTab = "open";
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById("fDate").value = today;
+
+  if (REPO) {
+    document.getElementById("setupBanner").style.display = "none";
+    document.getElementById("repoInput").value = REPO;
+    loadAll();
+  }
+  renderOpenTab();
+});
+
+// ── REPO SETUP ────────────────────────────────────────────────────────────────
+function saveRepo() {
+  const val = document.getElementById("repoInput").value.trim().replace(/^\/|\/$/g, "");
+  if (!val.includes("/")) { alert("Format: username/repo-name"); return; }
+  REPO = val;
+  localStorage.setItem(STORAGE_KEY_REPO, REPO);
+  document.getElementById("setupBanner").style.display = "none";
+  loadAll();
+}
+
+// ── LOAD DATA ─────────────────────────────────────────────────────────────────
+async function loadAll() {
+  if (!REPO) return;
+  const btn = document.getElementById("refreshBtn");
+  btn.innerHTML = '<span class="spin">⟳</span> Loading…';
+  btn.disabled = true;
+
+  setStatus("loading", "Fetching data from GitHub…");
+
+  try {
+    const base = `https://raw.githubusercontent.com/${REPO}/main`;
+
+    // Load portfolio.json
+    const pRes = await fetch(`${base}/portfolio.json?t=${Date.now()}`);
+    if (pRes.ok) {
+      const remote = await pRes.json();
+      // Merge: remote is authoritative, but keep local-only positions
+      portfolio = remote;
+      localStorage.setItem(STORAGE_KEY_PORTFOLIO, JSON.stringify(portfolio));
+    }
+
+    // Load prices.json
+    const prRes = await fetch(`${base}/prices.json?t=${Date.now()}`);
+    if (prRes.ok) {
+      const prData = await prRes.json();
+      prices        = prData.prices || {};
+      pricesUpdated = prData.updated;
+      setStatus("ok", pricesUpdated
+        ? `Prices updated ${timeAgo(pricesUpdated)}`
+        : "Prices loaded (no timestamp)");
+    } else {
+      setStatus("warn", "prices.json not found — run the GitHub Action first");
+    }
+  } catch (e) {
+    setStatus("err", `Load failed: ${e.message}`);
+  }
+
+  btn.innerHTML = "⟳ Refresh";
+  btn.disabled = false;
+
+  renderOpenTab();
+  renderClosedTab();
+  renderSummary();
+}
+
+// ── RENDER OPEN ───────────────────────────────────────────────────────────────
+function renderOpenTab() {
+  const open = portfolio.positions.filter(p => !p.closed);
+  document.getElementById("openCount").textContent = `(${open.length})`;
+
+  const sorted = applyFilterSort(open);
+  const tbody  = document.getElementById("openBody");
+  const tfoot  = document.getElementById("openFoot");
+
+  if (sorted.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="empty-icon">📭</div><p>No open positions.<br>Go to <strong>+ Add Position</strong> to get started.</p></div></td></tr>`;
+    tfoot.innerHTML = "";
+    document.getElementById("hlRow").style.display = "none";
+    return;
+  }
+
+  tbody.innerHTML = sorted.map(pos => {
+    const { shares, currentPrice, pnl, ret, win } = calc(pos);
+    const days = holdDays(pos.entryDate);
+    return `
+    <tr>
+      <td>
+        <div class="ticker-cell">
+          <div class="side-bar" style="background:${win ? "var(--green)" : "var(--red)"}"></div>
+          <div>
+            <div class="ticker-name">${pos.ticker}</div>
+            ${pos.name && pos.name !== pos.ticker ? `<div class="ticker-full">${pos.name}</div>` : ""}
+          </div>
+        </div>
+      </td>
+      <td style="color:var(--blue)">$${pos.entry}</td>
+      <td style="color:${win ? "var(--green)" : "var(--red)"}">
+        ${currentPrice !== null ? "$" + currentPrice.toFixed(4) : '<span style="color:var(--muted)">—</span>'}
+      </td>
+      <td style="color:var(--muted)">$${pos.invest}</td>
+      <td style="color:var(--muted)">${shares.toFixed(3)}</td>
+      <td style="color:${win ? "var(--green)" : "var(--red)"}; font-weight:500">${fmt(pnl)}</td>
+      <td><span class="pill ${win ? "pill-green" : "pill-red"}">${fmtPct(ret)}</span></td>
+      <td style="color:var(--muted)">${holdLabel(days)}</td>
+      <td style="color:var(--muted);font-size:0.72rem">${pos.entryDate}</td>
+      <td>
+        <div style="display:flex;gap:5px;justify-content:flex-end">
+          <button class="act-btn close-btn" onclick="closePos('${pos.id}')">✕ Close</button>
+          <button class="act-btn danger" onclick="deletePos('${pos.id}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join("");
+
+  // Footer totals
+  const vis    = sorted;
+  const totPnl = vis.reduce((s, p) => s + calc(p).pnl, 0);
+  const totInv = vis.reduce((s, p) => s + p.invest, 0);
+  const totRet = totInv ? (totPnl / totInv) * 100 : 0;
+  tfoot.innerHTML = `
+    <tr>
+      <td>TOTAL · ${vis.length} positions</td>
+      <td></td><td></td>
+      <td style="color:var(--muted)">$${totInv.toLocaleString()}</td>
+      <td></td>
+      <td style="color:${totPnl >= 0 ? "var(--green)" : "var(--red)"}">${fmt(totPnl)}</td>
+      <td style="color:${totRet >= 0 ? "var(--green)" : "var(--red)"}">${fmtPct(totRet)}</td>
+      <td colspan="3"></td>
+    </tr>`;
+
+  // Best / worst
+  const best  = open.reduce((a, b) => calc(a).pnl > calc(b).pnl ? a : b);
+  const worst = open.reduce((a, b) => calc(a).pnl < calc(b).pnl ? a : b);
+  const hlRow = document.getElementById("hlRow");
+  hlRow.style.display = "grid";
+  hlRow.innerHTML = [
+    { label: "🏆 Best Position", pos: best,  col: "var(--green)" },
+    { label: "⚠ Weakest Position", pos: worst, col: "var(--red)" },
+  ].map(({ label, pos, col }) => {
+    const { pnl, ret } = calc(pos);
+    return `
+    <div class="hl-card" style="border-left:3px solid ${col}">
+      <div class="hl-label">${label}</div>
+      <div class="hl-ticker">${pos.ticker}</div>
+      <div class="hl-pnl" style="color:${col}">${fmt(pnl)} &nbsp;·&nbsp; ${fmtPct(ret)}</div>
+    </div>`;
+  }).join("");
+}
+
+// ── RENDER CLOSED ─────────────────────────────────────────────────────────────
+function renderClosedTab() {
+  const closed = portfolio.positions.filter(p => p.closed);
+  document.getElementById("closedCount").textContent = `(${closed.length})`;
+  const el = document.getElementById("closedContent");
+
+  if (closed.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🗄</div><p>No closed positions yet.</p></div>`;
+    return;
+  }
+
+  const totPnl = closed.reduce((s, p) => s + calc(p).pnl, 0);
+  el.innerHTML = `
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:14px">
+      Realized P&L: <strong style="color:${totPnl >= 0 ? "var(--green)" : "var(--red)"}">${fmt(totPnl)}</strong>
+    </div>
+    <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Ticker</th><th>Entry $</th><th>Exit $</th>
+        <th>Invested</th><th>P&amp;L $</th><th>Return</th><th>Held</th><th>Closed</th>
+      </tr></thead>
+      <tbody>
+        ${closed.map(pos => {
+          const price  = pos.closePrice || pos.entry;
+          const shares = pos.invest / pos.entry;
+          const pnl    = shares * price - pos.invest;
+          const ret    = (pnl / pos.invest) * 100;
+          const win    = pnl >= 0;
+          const days   = pos.closeDate && pos.entryDate
+            ? Math.floor((new Date(pos.closeDate) - new Date(pos.entryDate)) / 86400000) : 0;
+          return `<tr style="opacity:0.75">
+            <td style="color:#e0ecff">${pos.ticker}</td>
+            <td style="color:var(--muted)">$${pos.entry}</td>
+            <td style="color:var(--muted)">$${price}</td>
+            <td style="color:var(--muted)">$${pos.invest}</td>
+            <td style="color:${win ? "var(--green)" : "var(--red)"};font-weight:500">${fmt(pnl)}</td>
+            <td><span class="pill ${win ? "pill-green" : "pill-red"}">${fmtPct(ret)}</span></td>
+            <td style="color:var(--muted)">${holdLabel(days)}</td>
+            <td style="color:var(--muted);font-size:0.72rem">${pos.closeDate || "—"}</td>
+          </tr>`;
+        }).join("")}
+      </tbody>
+    </table></div>`;
+}
+
+// ── RENDER SUMMARY ────────────────────────────────────────────────────────────
+function renderSummary() {
+  const open = portfolio.positions.filter(p => !p.closed);
+  if (open.length === 0) {
+    document.getElementById("summaryStrip").style.display = "none";
+    return;
+  }
+  const closed   = portfolio.positions.filter(p => p.closed);
+  const totInv   = open.reduce((s, p) => s + p.invest, 0);
+  const totPnl   = open.reduce((s, p) => s + calc(p).pnl, 0);
+  const totRet   = totInv ? (totPnl / totInv) * 100 : 0;
+  const winners  = open.filter(p => calc(p).pnl >= 0).length;
+  const losers   = open.length - winners;
+  const realPnl  = closed.reduce((s, p) => s + calc(p).pnl, 0);
+  const strip    = document.getElementById("summaryStrip");
+  strip.style.display = "grid";
+  strip.innerHTML = [
+    { label: "Invested (Open)",  val: `$${totInv.toLocaleString()}`,   cls: "c-blue" },
+    { label: "Unrealized P&L",   val: fmt(totPnl),                     cls: totPnl >= 0 ? "c-green" : "c-red" },
+    { label: "Portfolio Return", val: fmtPct(totRet),                   cls: totRet >= 0 ? "c-green" : "c-red" },
+    { label: "Win / Loss",       val: `${winners}W · ${losers}L`,      cls: "c-gold" },
+    { label: "Realized P&L",     val: fmt(realPnl),                     cls: realPnl >= 0 ? "c-green" : "c-red" },
+    { label: "Total Positions",  val: portfolio.positions.length,        cls: "c-text" },
+  ].map(c => `
+    <div class="stat-card">
+      <div class="stat-label">${c.label}</div>
+      <div class="stat-value ${c.cls}">${c.val}</div>
+    </div>`).join("");
+}
+
+// ── ADD POSITION ──────────────────────────────────────────────────────────────
+function addPosition() {
+  const ticker = document.getElementById("fTicker").value.trim().toUpperCase();
+  const entry  = parseFloat(document.getElementById("fEntry").value);
+  const date   = document.getElementById("fDate").value;
+  const invest = parseFloat(document.getElementById("fInvest").value) || 500;
+  const notes  = document.getElementById("fNotes").value.trim();
+
+  if (!ticker || isNaN(entry) || !date) {
+    document.getElementById("addMsg").innerHTML = `<span style="color:var(--red)">⚠ Ticker, entry price and date are required.</span>`;
+    return;
+  }
+
+  const pos = {
+    id: Date.now().toString(),
+    ticker, entry, entryDate: date, invest, notes,
+    name: ticker, closed: false, closePrice: null, closeDate: null,
+  };
+
+  portfolio.positions.push(pos);
+  localStorage.setItem(STORAGE_KEY_PORTFOLIO, JSON.stringify(portfolio));
+
+  document.getElementById("fTicker").value = "";
+  document.getElementById("fEntry").value  = "";
+  document.getElementById("fNotes").value  = "";
+  document.getElementById("addMsg").innerHTML =
+    `<span style="color:var(--green)">✓ ${ticker} added! Now download portfolio.json and commit it to GitHub.</span>`;
+
+  renderOpenTab();
+  renderSummary();
+  document.getElementById("openCount").textContent = `(${portfolio.positions.filter(p=>!p.closed).length})`;
+}
+
+// ── CLOSE / DELETE ────────────────────────────────────────────────────────────
+function closePos(id) {
+  const pos = portfolio.positions.find(p => p.id === id);
+  if (!pos) return;
+  const pr = prices[pos.ticker];
+  pos.closed     = true;
+  pos.closePrice = pr?.price || pos.entry;
+  pos.closeDate  = new Date().toISOString().slice(0, 10);
+  save();
+  renderOpenTab(); renderClosedTab(); renderSummary();
+}
+
+function deletePos(id) {
+  if (!confirm("Delete this position?")) return;
+  portfolio.positions = portfolio.positions.filter(p => p.id !== id);
+  save();
+  renderOpenTab(); renderSummary();
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY_PORTFOLIO, JSON.stringify(portfolio));
+}
+
+// ── DOWNLOAD portfolio.json ───────────────────────────────────────────────────
+function downloadPortfolio() {
+  const blob = new Blob([JSON.stringify(portfolio, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "portfolio.json";
+  a.click();
+}
+
+// ── CALC ──────────────────────────────────────────────────────────────────────
+function calc(pos) {
+  const priceEntry  = prices[pos.ticker];
+  const currentPrice = pos.closed
+    ? (pos.closePrice ?? pos.entry)
+    : (priceEntry?.price ?? null);
+  const effectivePrice = currentPrice ?? pos.entry;
+  const shares = pos.invest / pos.entry;
+  const pnl    = shares * effectivePrice - pos.invest;
+  const ret    = (pnl / pos.invest) * 100;
+  return { shares, currentPrice, pnl, ret, win: pnl >= 0 };
+}
+
+// ── FILTER / SORT ─────────────────────────────────────────────────────────────
+function applyFilterSort(list) {
+  let out = [...list];
+  if (filterMode === "win")  out = out.filter(p => calc(p).pnl >= 0);
+  if (filterMode === "loss") out = out.filter(p => calc(p).pnl <  0);
+  out.sort((a, b) => {
+    if (sortKey === "date") return new Date(b.entryDate) - new Date(a.entryDate);
+    if (sortKey === "pnl")  return calc(b).pnl - calc(a).pnl;
+    if (sortKey === "ret")  return calc(b).ret - calc(a).ret;
+    if (sortKey === "hold") return holdDays(a.entryDate) - holdDays(b.entryDate);
+    return 0;
+  });
+  return out;
+}
+
+function setFilter(mode, btn) {
+  filterMode = mode;
+  document.querySelectorAll(".toolbar .chip").forEach(c => {
+    if (["all","win","loss"].some(v => c.textContent.toLowerCase().includes(v))) c.classList.remove("active");
+  });
+  btn.classList.add("active");
+  renderOpenTab();
+}
+
+function setSort(key, btn) {
+  sortKey = key;
+  document.querySelectorAll(".toolbar .chip").forEach(c => {
+    if (["date","p&l","return","hold"].some(v => c.textContent.toLowerCase().includes(v))) c.classList.remove("active");
+  });
+  btn.classList.add("active");
+  renderOpenTab();
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function showTab(name, btn) {
+  ["open","add","closed","guide"].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = t === name ? "" : "none";
+  });
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentTab = name;
+}
+
+// ── STATUS ────────────────────────────────────────────────────────────────────
+function setStatus(state, msg) {
+  const dot  = document.getElementById("statusDot");
+  const text = document.getElementById("statusText");
+  const lu   = document.getElementById("lastUpdated");
+  text.textContent = msg;
+  lu.textContent   = msg;
+  dot.className = "status-dot " + (state === "ok" ? "dot-green" : state === "err" ? "dot-red" : "dot-grey");
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function holdDays(dateStr) {
+  return Math.floor((Date.now() - new Date(dateStr)) / 86400000);
+}
+function holdLabel(days) {
+  if (days < 1)  return "Today";
+  if (days < 7)  return `${days}d`;
+  if (days < 30) return `${Math.floor(days/7)}w ${days%7}d`;
+  return `${Math.floor(days/30)}mo ${days%30}d`;
+}
+function fmt(n)    { return (n >= 0 ? "+" : "") + n.toFixed(2); }
+function fmtPct(n) { return (n >= 0 ? "+" : "") + n.toFixed(2) + "%"; }
+function timeAgo(iso) {
+  const diff = Math.floor((Date.now() - new Date(iso)) / 60000);
+  if (diff < 2)   return "just now";
+  if (diff < 60)  return `${diff}m ago`;
+  if (diff < 1440) return `${Math.floor(diff/60)}h ago`;
+  return `${Math.floor(diff/1440)}d ago`;
+}
+</script>
+</body>
+</html>
