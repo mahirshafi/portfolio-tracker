@@ -447,6 +447,20 @@
       "closed": false,
       "closePrice": null,
       "closeDate": null
+    },
+    {
+      "id": "1777150527448",
+      "ticker": "RJF",
+      "entry": 148.39,
+      "entryDate": "2026-04-27",
+      "invest": 500,
+      "tp": 168.02,
+      "sl": 141.2,
+      "notes": "",
+      "name": "RJF",
+      "closed": false,
+      "closePrice": null,
+      "closeDate": null
     }
   ]
 }
