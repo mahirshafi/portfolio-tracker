@@ -139,6 +139,20 @@
       "closed": false,
       "closePrice": null,
       "closeDate": null
+    },
+    {
+      "id": "1777149763883",
+      "ticker": "SIFY",
+      "entry": 13.46,
+      "entryDate": "2026-04-17",
+      "invest": 500,
+      "tp": 17.31,
+      "sl": 12.73,
+      "notes": "",
+      "name": "SIFY",
+      "closed": false,
+      "closePrice": null,
+      "closeDate": null
     }
   ]
 }
