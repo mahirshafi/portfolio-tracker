@@ -26,7 +26,7 @@
   --mono:'Azeret Mono',monospace;
   --sans:'DM Sans',sans-serif;
 }
-html{font-size:14px}
+html{font-size:17px}
 body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;padding-bottom:80px}
 input,select,button,textarea{font-family:var(--mono);outline:none}
 ::-webkit-scrollbar{width:4px;height:4px}
@@ -254,6 +254,7 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
           <th>Ticker</th>
           <th>Entry</th>
           <th>Current</th>
+          <th>Invested</th>
           <th>P&L</th>
           <th>Ret%</th>
           <th>TP Progress</th>
@@ -644,6 +645,7 @@ function renderOpen() {
       <td style="color:${win ? "var(--green)" : "var(--red)"}">
         ${pr !== null ? "$" + pr.toFixed(4) : '<span style="color:var(--muted)">—</span>'}
       </td>
+      <td style="color:var(--muted)">$${pos.invest}</td>
       <td style="color:${win ? "var(--green)" : "var(--red)"};font-weight:500">${fmt(pnl)}</td>
       <td><span class="pill ${win ? "pg" : "pr"}">${fmtP(ret)}</span></td>
       <td>${tpCell}</td>
@@ -669,6 +671,7 @@ function renderOpen() {
     <tr>
       <td>TOTAL · ${list.length}</td>
       <td></td><td></td>
+      <td style="color:var(--muted)">$${list.reduce((s,p)=>s+p.invest,0).toLocaleString()}</td>
       <td style="color:${totPnl>=0?"var(--green)":"var(--red)"}">${fmt(totPnl)}</td>
       <td style="color:${totRet>=0?"var(--green)":"var(--red)"}">${fmtP(totRet)}</td>
       <td colspan="5"></td>
