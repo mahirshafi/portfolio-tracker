@@ -279,6 +279,20 @@
       "closed": false,
       "closePrice": null,
       "closeDate": null
+    },
+    {
+      "id": "1777150107115",
+      "ticker": "TSM",
+      "entry": 338.25,
+      "entryDate": "2026-04-06",
+      "invest": 500,
+      "tp": 404.16,
+      "sl": 325.76,
+      "notes": "",
+      "name": "TSM",
+      "closed": false,
+      "closePrice": null,
+      "closeDate": null
     }
   ]
 }
