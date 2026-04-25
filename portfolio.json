@@ -265,6 +265,20 @@
       "closed": false,
       "closePrice": null,
       "closeDate": null
+    },
+    {
+      "id": "1777150079623",
+      "ticker": "TRV",
+      "entry": 296.43,
+      "entryDate": "2026-04-10",
+      "invest": 500,
+      "tp": 318.34,
+      "sl": 288.44,
+      "notes": "",
+      "name": "TRV",
+      "closed": false,
+      "closePrice": null,
+      "closeDate": null
     }
   ]
 }
