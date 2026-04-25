@@ -209,6 +209,20 @@
       "closed": false,
       "closePrice": null,
       "closeDate": null
+    },
+    {
+      "id": "1777149943685",
+      "ticker": "FBK",
+      "entry": 52.14,
+      "entryDate": "2026-04-01",
+      "invest": 500,
+      "tp": 60.02,
+      "sl": 50.13,
+      "notes": "",
+      "name": "FBK",
+      "closed": false,
+      "closePrice": null,
+      "closeDate": null
     }
   ]
 }
