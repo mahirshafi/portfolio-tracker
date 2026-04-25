@@ -1,3 +1,16 @@
 {
-  "positions": []
+  "positions": [
+    {
+      "id": "1777125823987",
+      "ticker": "FWONA",
+      "entry": 79.09,
+      "entryDate": "2026-04-07",
+      "invest": 500,
+      "notes": "",
+      "name": "FWONA",
+      "closed": false,
+      "closePrice": null,
+      "closeDate": null
+    }
+  ]
 }
