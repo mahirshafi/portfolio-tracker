@@ -22,7 +22,9 @@
       "name": "FULC",
       "closed": false,
       "closePrice": null,
-      "closeDate": null
+      "closeDate": null,
+      "tp": 10.88,
+      "sl": 6.78
     }
   ]
 }
