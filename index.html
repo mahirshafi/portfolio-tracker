@@ -246,7 +246,6 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
     <button class="tb on" onclick="showTab('open',this)">Open <span id="cntOpen">(0)</span></button>
     <button class="tb" onclick="showTab('add',this)">+ Add</button>
     <button class="tb" onclick="showTab('hits',this)">🎯 TP/SL Hits <span id="cntHits">(0)</span></button>
-    <button class="tb" onclick="showTab('ratings',this)">⭐ Ratings</button>
     <button class="tb" onclick="showTab('closed',this)">Closed <span id="cntClosed">(0)</span></button>
     <button class="tb" onclick="showTab('chart',this)">Equity Curve</button>
     <button class="tb" onclick="showTab('guide',this)">Guide</button>
@@ -299,28 +298,6 @@ tfoot td:first-child{text-align:left;color:var(--muted)}
     </div>
     <div id="hitsContent">
       <div class="empty"><div class="empty-icon">🔍</div><p>Click <strong>Scan Now</strong> to check which positions hit TP or SL since entry.</p></div>
-    </div>
-  </div>
-
-  <!-- RATINGS TAB -->
-  <div id="tab-ratings" style="display:none" class="fi">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
-      <div>
-        <div style="font-size:0.62rem;color:var(--muted);margin-bottom:4px">Scans Yahoo Finance for each open position: institutional ownership, insider activity, short interest, earnings surprise, analyst ratings, news sentiment.</div>
-        <div style="font-size:0.58rem;color:var(--muted2)">⚠ Data is from Yahoo Finance public API — quarterly/delayed. Best for swing trade context, not intraday.</div>
-      </div>
-      <button class="refresh-btn" onclick="scanRatings()" id="ratingsScanBtn">
-        <span id="ratingsScanIcon">⭐</span> Scan & Rate All
-      </button>
-    </div>
-    <div id="ratingsProgress" style="display:none;margin-bottom:14px">
-      <div style="font-size:0.7rem;color:var(--muted);margin-bottom:6px" id="ratingsProgressText">Scanning…</div>
-      <div style="height:4px;background:var(--muted2);border-radius:2px;overflow:hidden">
-        <div id="ratingsProgressBar" style="height:100%;background:var(--blue);border-radius:2px;transition:width 0.3s;width:0%"></div>
-      </div>
-    </div>
-    <div id="ratingsContent">
-      <div class="empty"><div class="empty-icon">⭐</div><p>Click <strong>Scan & Rate All</strong> to analyse your positions.<br><span style="font-size:0.72rem;color:var(--muted)">Takes ~5 seconds per stock.</span></p></div>
     </div>
   </div>
 
@@ -585,64 +562,26 @@ async function loadAll() {
   icon.className = "spin";
   setStatus("grey","Fetching from GitHub…");
 
-  // Helper: fetch with timeout
-  async function fetchWithTimeout(url, ms=8000) {
-    const ctrl = new AbortController();
-    const tid  = setTimeout(() => ctrl.abort(), ms);
-    try {
-      const r = await fetch(url, { signal: ctrl.signal });
-      clearTimeout(tid);
-      return r;
-    } catch(e) {
-      clearTimeout(tid);
-      throw e;
-    }
-  }
-
   try {
     const base = `https://raw.githubusercontent.com/${REPO}/main`;
-
-    // Load portfolio.json
-    try {
-      const pRes = await fetchWithTimeout(`${base}/portfolio.json?t=${Date.now()}`);
-      if (pRes.ok) {
-        portfolio = await pRes.json();
-        localStorage.setItem(SK_PORT, JSON.stringify(portfolio));
-      } else {
-        // Fallback to localStorage
-        const local = localStorage.getItem(SK_PORT);
-        if (local) portfolio = JSON.parse(local);
-        setStatus("o", `portfolio.json fetch failed (${pRes.status}) — using cached data`);
-      }
-    } catch(e) {
-      // Timeout or network error — use localStorage
-      const local = localStorage.getItem(SK_PORT);
-      if (local) { portfolio = JSON.parse(local); }
-      setStatus("o", `GitHub unreachable — using cached portfolio (${portfolio.positions?.length||0} positions)`);
+    const pRes = await fetch(`${base}/portfolio.json?t=${Date.now()}`);
+    if (pRes.ok) {
+      portfolio = await pRes.json();
+      localStorage.setItem(SK_PORT, JSON.stringify(portfolio));
     }
-
+    // Also fetch SHA via GitHub API (needed for updating file)
     if (PAT) fetchPortfolioSHA();
-
-    // Load prices.json
-    try {
-      const prRes = await fetchWithTimeout(`${base}/prices.json?t=${Date.now()}`);
-      if (prRes.ok) {
-        const d = await prRes.json();
-        prices   = d.prices || {};
-        pricesTs = d.updated;
-        setStatus("g", pricesTs ? `Prices updated ${timeAgo(pricesTs)}` : "Prices loaded");
-      } else {
-        setStatus("o","prices.json not found — run the GitHub Action first");
-      }
-    } catch(e) {
-      setStatus("o","Could not load prices — showing entry prices");
+    const prRes = await fetch(`${base}/prices.json?t=${Date.now()}`);
+    if (prRes.ok) {
+      const d = await prRes.json();
+      prices   = d.prices || {};
+      pricesTs = d.updated;
+      setStatus("g", pricesTs ? `Prices updated ${timeAgo(pricesTs)}` : "Prices loaded");
+    } else {
+      setStatus("o","prices.json not found — run the GitHub Action first");
     }
-
   } catch(e) {
     setStatus("r",`Load failed: ${e.message}`);
-    // Still try to render from localStorage
-    const local = localStorage.getItem(SK_PORT);
-    if (local) portfolio = JSON.parse(local);
   }
 
   btn.disabled = false;
@@ -1541,329 +1480,9 @@ function renderHits(results, scanned) {
     </table></div>`;
 }
 
-// ── RATINGS ENGINE ───────────────────────────────────────
-/*
-  Criteria & weights:
-  1. Institutional Ownership trend  — 20%
-  2. Insider Buying/Selling         — 25%
-  3. Short Interest                 — 15%
-  4. Earnings Surprise              — 20%
-  5. Analyst Ratings                — 10%
-  6. News Sentiment                 — 10%
-*/
-const CRITERIA = [
-  { key:"institutional", label:"Institutional Ownership", weight:0.20, icon:"🏦" },
-  { key:"insider",       label:"Insider Activity",        weight:0.25, icon:"👔" },
-  { key:"shortInt",      label:"Short Interest",          weight:0.15, icon:"📉" },
-  { key:"earnings",      label:"Earnings Surprise",       weight:0.20, icon:"📊" },
-  { key:"analyst",       label:"Analyst Ratings",         weight:0.10, icon:"🎯" },
-  { key:"news",          label:"News Sentiment",          weight:0.10, icon:"📰" },
-];
-
-async function fetchYahooData(ticker) {
-  const proxy = t => `https://api.allorigins.win/get?url=${encodeURIComponent(t)}`;
-  const base  = "https://query2.finance.yahoo.com";
-  const base1 = "https://query1.finance.yahoo.com";
-
-  // Fetch summary + stats + holders + insider in parallel
-  const [summaryRes, holdersRes, insiderRes, earningsRes, newsRes] = await Promise.allSettled([
-    fetch(proxy(`${base}/v10/finance/quoteSummary/${ticker}?modules=defaultKeyStatistics,summaryDetail,financialData,recommendationTrend`)).then(r=>r.json()).then(d=>JSON.parse(d.contents)),
-    fetch(proxy(`${base}/v10/finance/quoteSummary/${ticker}?modules=institutionOwnership`)).then(r=>r.json()).then(d=>JSON.parse(d.contents)),
-    fetch(proxy(`${base}/v10/finance/quoteSummary/${ticker}?modules=insiderTransactions`)).then(r=>r.json()).then(d=>JSON.parse(d.contents)),
-    fetch(proxy(`${base}/v10/finance/quoteSummary/${ticker}?modules=earnings`)).then(r=>r.json()).then(d=>JSON.parse(d.contents)),
-    fetch(proxy(`${base1}/v1/finance/search?q=${ticker}&newsCount=10&quotesCount=0`)).then(r=>r.json()).then(d=>JSON.parse(d.contents)),
-  ]);
-
-  return {
-    summary: summaryRes.status==="fulfilled" ? summaryRes.value : null,
-    holders: holdersRes.status==="fulfilled" ? holdersRes.value : null,
-    insider:  insiderRes.status==="fulfilled" ? insiderRes.value : null,
-    earnings: earningsRes.status==="fulfilled" ? earningsRes.value : null,
-    news:     newsRes.status==="fulfilled"     ? newsRes.value    : null,
-  };
-}
-
-function scoreInstitutional(holders) {
-  // Score based on % of shares held by institutions and trend
-  try {
-    const own = holders?.quoteSummary?.result?.[0]?.institutionOwnership?.ownershipList || [];
-    if (!own.length) return { stars:3, reason:"No institutional data available", raw:null };
-    // Most recent 2 quarters
-    const sorted = [...own].sort((a,b)=>(b.reportDate?.raw||0)-(a.reportDate?.raw||0));
-    const latest = sorted[0]?.pctHeld?.raw || 0;
-    const prev   = sorted[1]?.pctHeld?.raw || 0;
-    const trend  = latest - prev;
-    const pct    = (latest * 100).toFixed(1);
-    const trendStr = trend > 0 ? `▲ +${(trend*100).toFixed(1)}%` : trend < 0 ? `▼ ${(trend*100).toFixed(1)}%` : "→ flat";
-    let stars = 3;
-    if (latest > 0.7 && trend > 0)       stars = 5;
-    else if (latest > 0.5 && trend > 0)  stars = 4;
-    else if (latest > 0.5 && trend <= 0) stars = 3;
-    else if (latest > 0.3 && trend < 0)  stars = 2;
-    else if (latest < 0.2)               stars = 1;
-    return { stars, reason:`${pct}% institutional ownership, ${trendStr} vs prev quarter`, raw:{ pct, trend } };
-  } catch { return { stars:3, reason:"Data unavailable", raw:null }; }
-}
-
-function scoreInsider(insider) {
-  try {
-    const txns = insider?.quoteSummary?.result?.[0]?.insiderTransactions?.transactions || [];
-    if (!txns.length) return { stars:3, reason:"No recent insider transactions", raw:null };
-    // Last 90 days
-    const cutoff = Date.now()/1000 - 90*86400;
-    const recent = txns.filter(t => (t.startDate?.raw||0) > cutoff);
-    if (!recent.length) return { stars:3, reason:"No insider activity in last 90 days", raw:null };
-    const buys  = recent.filter(t => t.transactionText?.toLowerCase().includes("purchase") || t.transactionText?.toLowerCase().includes("buy"));
-    const sells = recent.filter(t => t.transactionText?.toLowerCase().includes("sale") || t.transactionText?.toLowerCase().includes("sell"));
-    const buyVal  = buys.reduce((s,t)=>(s + (t.value?.raw||0)),0);
-    const sellVal = sells.reduce((s,t)=>(s + (t.value?.raw||0)),0);
-    let stars = 3;
-    const ratio = buyVal / (sellVal || 1);
-    if (buys.length >= 3 && ratio > 2)        stars = 5;
-    else if (buys.length >= 1 && ratio > 1)   stars = 4;
-    else if (buys.length === 0 && sells.length === 0) stars = 3;
-    else if (sells.length > buys.length)      stars = 2;
-    else if (sellVal > buyVal * 3)            stars = 1;
-    const reason = `${buys.length} buy(s) $${(buyVal/1000).toFixed(0)}k vs ${sells.length} sell(s) $${(sellVal/1000).toFixed(0)}k in last 90d`;
-    return { stars, reason, raw:{ buys:buys.length, sells:sells.length, buyVal, sellVal } };
-  } catch { return { stars:3, reason:"Data unavailable", raw:null }; }
-}
-
-function scoreShortInterest(summary) {
-  try {
-    const ks   = summary?.quoteSummary?.result?.[0]?.defaultKeyStatistics;
-    const si   = ks?.shortPercentOfFloat?.raw;
-    const srt  = ks?.shortRatio?.raw; // days to cover
-    if (si == null) return { stars:3, reason:"Short interest data unavailable", raw:null };
-    const siPct = (si*100).toFixed(1);
-    // High short interest is ambiguous — could squeeze UP or signal bearish conviction
-    // We score it as squeeze potential (bullish contrarian)
-    let stars = 3;
-    if (si > 0.30)       stars = 5; // extreme short — big squeeze potential
-    else if (si > 0.20)  stars = 4;
-    else if (si > 0.10)  stars = 3;
-    else if (si > 0.05)  stars = 2;
-    else                 stars = 2; // very low short = no squeeze fuel
-    const reason = `${siPct}% of float shorted, ${srt?.toFixed(1)||"?"} days to cover`;
-    return { stars, reason, raw:{ si, srt } };
-  } catch { return { stars:3, reason:"Data unavailable", raw:null }; }
-}
-
-function scoreEarnings(earnings) {
-  try {
-    const hist = earnings?.quoteSummary?.result?.[0]?.earnings?.earningsChart?.quarterly || [];
-    if (!hist.length) return { stars:3, reason:"No earnings data available", raw:null };
-    const recent = hist.slice(-4); // last 4 quarters
-    const surprises = recent.map(q => {
-      const est = q.estimate?.raw;
-      const act = q.actual?.raw;
-      if (est == null || act == null) return null;
-      return { pct: ((act-est)/Math.abs(est||1))*100, quarter: q.date };
-    }).filter(Boolean);
-    if (!surprises.length) return { stars:3, reason:"Insufficient earnings data", raw:null };
-    const avg = surprises.reduce((s,q)=>s+q.pct,0)/surprises.length;
-    const beats = surprises.filter(q=>q.pct>0).length;
-    let stars = 3;
-    if (avg > 15 && beats >= 3)      stars = 5;
-    else if (avg > 5 && beats >= 2)  stars = 4;
-    else if (avg > 0)                stars = 3;
-    else if (avg > -5)               stars = 2;
-    else                             stars = 1;
-    const reason = `Avg surprise ${avg>=0?"+":""}${avg.toFixed(1)}% over last ${surprises.length}Q, beat ${beats}/${surprises.length}`;
-    return { stars, reason, raw:{ avg, beats, total:surprises.length } };
-  } catch { return { stars:3, reason:"Data unavailable", raw:null }; }
-}
-
-function scoreAnalyst(summary) {
-  try {
-    const trend = summary?.quoteSummary?.result?.[0]?.recommendationTrend?.trend || [];
-    const fd    = summary?.quoteSummary?.result?.[0]?.financialData;
-    const rec   = fd?.recommendationMean?.raw;
-    const key   = fd?.recommendationKey || "";
-    if (rec == null && !trend.length) return { stars:3, reason:"No analyst data available", raw:null };
-    // Yahoo scale: 1=Strong Buy, 2=Buy, 3=Hold, 4=Sell, 5=Strong Sell
-    const current = trend[0] || {};
-    const sb = current.strongBuy||0, b = current.buy||0, h = current.hold||0, s = current.sell||0, ss = current.strongSell||0;
-    const total = sb+b+h+s+ss || 1;
-    const bullRatio = (sb+b)/total;
-    let stars = 3;
-    if (rec) {
-      if (rec <= 1.5)      stars = 5;
-      else if (rec <= 2.2) stars = 4;
-      else if (rec <= 3.0) stars = 3;
-      else if (rec <= 3.8) stars = 2;
-      else                 stars = 1;
-    } else {
-      stars = Math.round(1 + bullRatio * 4);
-    }
-    const reason = rec
-      ? `Mean rating ${rec.toFixed(2)}/5 (${key}) — ${sb} strong buy, ${b} buy, ${h} hold, ${s+ss} sell`
-      : `${sb} strong buy, ${b} buy, ${h} hold, ${s+ss} sell`;
-    return { stars, reason, raw:{ rec, sb, b, h, s, ss } };
-  } catch { return { stars:3, reason:"Data unavailable", raw:null }; }
-}
-
-function scoreNews(news) {
-  try {
-    const articles = news?.news || [];
-    if (!articles.length) return { stars:3, reason:"No recent news", raw:null };
-    // Simple keyword sentiment on titles
-    const positive = ["beat","surge","soar","rally","record","upgrade","buy","strong","growth","profit","raised","bullish","breakthrough","launch","deal","acquisition"];
-    const negative = ["miss","fall","drop","decline","cut","downgrade","sell","weak","loss","warning","bearish","lawsuit","fine","layoff","recall"];
-    let pos = 0, neg = 0;
-    articles.forEach(a => {
-      const t = (a.title||"").toLowerCase();
-      positive.forEach(w => { if(t.includes(w)) pos++; });
-      negative.forEach(w => { if(t.includes(w)) neg++; });
-    });
-    const net = pos - neg;
-    let stars = 3;
-    if (net >= 4)       stars = 5;
-    else if (net >= 2)  stars = 4;
-    else if (net >= 0)  stars = 3;
-    else if (net >= -2) stars = 2;
-    else                stars = 1;
-    const reason = `${articles.length} articles — ${pos} positive signals, ${neg} negative signals (net ${net>=0?"+":""}${net})`;
-    return { stars, reason, raw:{ pos, neg, net, count:articles.length } };
-  } catch { return { stars:3, reason:"Data unavailable", raw:null }; }
-}
-
-function calcOverallRating(scores) {
-  let weighted = 0;
-  CRITERIA.forEach(c => {
-    weighted += (scores[c.key]?.stars || 3) * c.weight;
-  });
-  return Math.round(weighted * 10) / 10; // e.g. 3.7
-}
-
-function starsHtml(n, max=5) {
-  const full  = Math.round(n);
-  let html = "";
-  for (let i=1;i<=max;i++) {
-    html += `<span style="color:${i<=full?"var(--gold)":"var(--muted2)";font-size:1.1rem">★</span>`;
-  }
-  return html;
-}
-
-function ratingLabel(score) {
-  if (score >= 4.5) return { label:"Strong Buy",   color:"var(--green)" };
-  if (score >= 3.5) return { label:"Buy",           color:"#7dde8a" };
-  if (score >= 2.5) return { label:"Neutral",       color:"var(--gold)" };
-  if (score >= 1.5) return { label:"Caution",       color:"var(--orange)" };
-  return               { label:"Avoid",          color:"var(--red)" };
-}
-
-async function scanRatings() {
-  const btn  = document.getElementById("ratingsScanBtn");
-  const icon = document.getElementById("ratingsScanIcon");
-  btn.disabled = true;
-  icon.className = "spin";
-  document.getElementById("ratingsProgress").style.display = "block";
-
-  const open = portfolio.positions.filter(p => !p.closed);
-  const results = [];
-
-  for (let i=0; i<open.length; i++) {
-    const pos = open[i];
-    const pct = Math.round(((i+1)/open.length)*100);
-    document.getElementById("ratingsProgressText").textContent = `Scanning ${pos.ticker} (${i+1}/${open.length})…`;
-    document.getElementById("ratingsProgressBar").style.width  = pct+"%";
-
-    try {
-      const data   = await fetchYahooData(pos.ticker);
-      const scores = {
-        institutional: scoreInstitutional(data.holders),
-        insider:       scoreInsider(data.insider),
-        shortInt:      scoreShortInterest(data.summary),
-        earnings:      scoreEarnings(data.earnings),
-        analyst:       scoreAnalyst(data.summary),
-        news:          scoreNews(data.news),
-      };
-      const overall = calcOverallRating(scores);
-      results.push({ pos, scores, overall });
-    } catch(e) {
-      results.push({ pos, scores:{}, overall:3, error:e.message });
-    }
-    await new Promise(r=>setTimeout(r,400));
-  }
-
-  document.getElementById("ratingsProgress").style.display = "none";
-  btn.disabled = false;
-  icon.className = "";
-  renderRatings(results);
-}
-
-function renderRatings(results) {
-  const el = document.getElementById("ratingsContent");
-  if (!results.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><p>No open positions to rate.</p></div>`;
-    return;
-  }
-
-  // Sort by overall rating descending
-  results.sort((a,b) => b.overall - a.overall);
-
-  el.innerHTML = results.map(({pos, scores, overall, error}) => {
-    const { pnl, ret, win } = calc(pos);
-    const lbl = ratingLabel(overall);
-    const overallStars = Math.round(overall);
-
-    const criteriaRows = CRITERIA.map(c => {
-      const s = scores[c.key];
-      if (!s) return "";
-      const stars = s.stars || 3;
-      let starsHtml = "";
-      for (let i=1;i<=5;i++) starsHtml += `<span style="color:${i<=stars?"var(--gold)":"var(--muted2)"}"">★</span>`;
-      return `
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)">
-          <div style="font-size:1rem;width:24px;flex-shrink:0">${c.icon}</div>
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
-              <div style="font-size:0.7rem;color:var(--text);font-weight:500">${c.label}</div>
-              <div style="font-size:1rem;letter-spacing:1px">${starsHtml}</div>
-            </div>
-            <div style="font-size:0.6rem;color:var(--muted);margin-top:3px;line-height:1.5">${s.reason||""}</div>
-          </div>
-          <div style="font-size:0.6rem;color:var(--muted2);flex-shrink:0">${(c.weight*100).toFixed(0)}%</div>
-        </div>`;
-    }).join("");
-
-    let overallStarsHtml = "";
-    for (let i=1;i<=5;i++) overallStarsHtml += `<span style="color:${i<=overallStars?"var(--gold)":"var(--muted2)"};font-size:1.4rem">★</span>`;
-
-    return `
-    <div style="background:var(--s1);border:1px solid var(--bd);border-radius:14px;margin-bottom:16px;overflow:hidden">
-      <!-- Card Header -->
-      <div style="padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--bd);background:var(--s2)">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:4px;height:48px;border-radius:2px;background:${lbl.color};flex-shrink:0"></div>
-          <div>
-            <div style="font-size:1rem;font-weight:600;color:#deeeff;cursor:pointer" onclick="openDetail('${pos.id}')">${pos.ticker}</div>
-            <div style="font-size:0.6rem;color:var(--muted);margin-top:2px">${pos.notes||prices[pos.ticker]?.name||""}</div>
-            <div style="font-size:0.68rem;color:${win?"var(--green)":"var(--red)"};margin-top:3px">${fmt(pnl)} (${fmtP(ret)})</div>
-          </div>
-        </div>
-        <div style="text-align:right">
-          <div style="letter-spacing:2px">${overallStarsHtml}</div>
-          <div style="font-size:0.75rem;font-weight:600;color:${lbl.color};margin-top:4px">${lbl.label} · ${overall.toFixed(1)}/5</div>
-        </div>
-      </div>
-      <!-- Criteria breakdown -->
-      <div style="padding:4px 20px 8px">
-        ${error ? `<div style="color:var(--red);font-size:0.7rem;padding:12px 0">⚠ Scan error: ${error}</div>` : criteriaRows}
-      </div>
-      <!-- Footer -->
-      <div style="padding:10px 20px;border-top:1px solid var(--bd);display:flex;gap:8px">
-        <button class="ab tv" onclick="openTV('${pos.ticker}')" style="font-size:0.65rem">📊 TradingView</button>
-        <button class="ab edit" onclick="openDetail('${pos.id}')" style="font-size:0.65rem">📋 Detail</button>
-      </div>
-    </div>`;
-  }).join("");
-}
-
 // ── TABS ────────────────────────────────────────────────
 function showTab(name, btn) {
-  ["open","add","hits","ratings","closed","chart","guide","settings"].forEach(t => {
+  ["open","add","hits","closed","chart","guide","settings"].forEach(t => {
     document.getElementById(`tab-${t}`).style.display = t === name ? "" : "none";
   });
   document.querySelectorAll(".tb").forEach(b => b.classList.remove("on"));
