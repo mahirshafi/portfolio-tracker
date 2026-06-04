@@ -1,169 +1,169 @@
 {
-  "updated": "2026-06-03T23:46:08.740961+00:00",
+  "updated": "2026-06-04T23:11:05.974304+00:00",
   "prices": {
-    "CTRE": {
-      "price": 38.029999,
-      "name": "CareTrust REIT, Inc.",
-      "ok": true
-    },
-    "FWONA": {
-      "price": 79.730003,
-      "name": "Liberty Media Corporation - Ser",
-      "ok": true
-    },
-    "FNB": {
-      "price": 17.07,
-      "name": "F.N.B. Corporation",
-      "ok": true
-    },
-    "NDAQ": {
-      "price": 86.809998,
-      "name": "Nasdaq, Inc.",
-      "ok": true
-    },
-    "RJF": {
-      "price": 146.559998,
-      "name": "Raymond James Financial, Inc.",
-      "ok": true
-    },
-    "TRV": {
-      "price": 289.950012,
-      "name": "The Travelers Companies, Inc.",
-      "ok": true
-    },
-    "TMHC": {
-      "price": 71.540001,
-      "name": "Taylor Morrison Home Corporatio",
-      "ok": true
+    "PLD": {
+      "price": null,
+      "name": "PLD",
+      "ok": false
     },
     "EMAT": {
-      "price": 7.145,
-      "name": "Evolution Metals & Technologies",
+      "price": 6.95,
+      "name": "EMAT",
       "ok": true
     },
-    "HMN": {
-      "price": 45.299999,
-      "name": "Horace Mann Educators Corporati",
-      "ok": true
-    },
-    "FBIN": {
-      "price": 38.849998,
-      "name": "Fortune Brands Innovations, Inc",
+    "RKLB": {
+      "price": 119.949997,
+      "name": "RKLB",
       "ok": true
     },
     "WRB": {
-      "price": 65.290001,
-      "name": "W.R. Berkley Corporation",
+      "price": 66.309998,
+      "name": "WRB",
+      "ok": true
+    },
+    "RTX": {
+      "price": 179.410004,
+      "name": "RTX",
       "ok": true
     },
     "SIFY": {
-      "price": 16.01,
-      "name": "Sify Technologies Limited - Ame",
+      "price": 16.959999,
+      "name": "SIFY",
       "ok": true
     },
-    "MPLX": {
-      "price": 55.259998,
-      "name": "MPLX LP",
+    "GGG": {
+      "price": 74.309998,
+      "name": "GGG",
       "ok": true
     },
-    "SKY": {
-      "price": 72.480003,
-      "name": "Champion Homes, Inc.",
+    "FBK": {
+      "price": 53.119999,
+      "name": "FBK",
+      "ok": true
+    },
+    "FULC": {
+      "price": 3.37,
+      "name": "FULC",
       "ok": true
     },
     "PG": {
-      "price": 140.190002,
-      "name": "Procter & Gamble Company (The)",
+      "price": 140.779999,
+      "name": "PG",
       "ok": true
     },
-    "INDB": {
-      "price": 76.739998,
-      "name": "Independent Bank Corp.",
+    "RDVT": {
+      "price": 54.084999,
+      "name": "RDVT",
       "ok": true
     },
-    "DHR": {
-      "price": 178.080002,
-      "name": "Danaher Corporation",
-      "ok": true
-    },
-    "PLD": {
-      "price": 141.820007,
-      "name": "Prologis, Inc.",
-      "ok": true
-    },
-    "PEP": {
-      "price": 142.539993,
-      "name": "Pepsico, Inc.",
+    "NDAQ": {
+      "price": 88.449997,
+      "name": "NDAQ",
       "ok": true
     },
     "AMBP": {
       "price": 3.98,
-      "name": "Ardagh Metal Packaging S.A.",
+      "name": "AMBP",
       "ok": true
     },
-    "GGG": {
-      "price": 73.790001,
-      "name": "Graco Inc.",
-      "ok": true
-    },
-    "FULC": {
-      "price": 3.22,
-      "name": "Fulcrum Therapeutics, Inc.",
-      "ok": true
-    },
-    "RTX": {
-      "price": 172.550003,
-      "name": "RTX Corporation",
-      "ok": true
-    },
-    "DGX": {
-      "price": 193.669998,
-      "name": "Quest Diagnostics Incorporated",
-      "ok": true
-    },
-    "RKLB": {
-      "price": 114.699997,
-      "name": "Rocket Lab Corporation",
-      "ok": true
-    },
-    "CWBC": {
-      "price": 23.620001,
-      "name": "Community West Bancshares",
-      "ok": true
-    },
-    "RDVT": {
-      "price": 53.360001,
-      "name": "Red Violet, Inc.",
-      "ok": true
-    },
-    "FBK": {
-      "price": 51.810001,
-      "name": "FB Financial Corporation",
-      "ok": true
-    },
-    "TDS": {
-      "price": 39.189999,
-      "name": "Telephone and Data Systems, Inc",
+    "FWONA": {
+      "price": 79.160004,
+      "name": "FWONA",
       "ok": true
     },
     "TSM": {
-      "price": 436.690002,
-      "name": "Taiwan Semiconductor Manufactur",
+      "price": 444.920013,
+      "name": "TSM",
+      "ok": true
+    },
+    "FNB": {
+      "price": 17.639999,
+      "name": "FNB",
+      "ok": true
+    },
+    "DHR": {
+      "price": 186.639999,
+      "name": "DHR",
+      "ok": true
+    },
+    "TMHC": {
+      "price": 71.5,
+      "name": "TMHC",
+      "ok": true
+    },
+    "MPLX": {
+      "price": 56.32,
+      "name": "MPLX",
+      "ok": true
+    },
+    "CTRE": {
+      "price": 37.439999,
+      "name": "CTRE",
+      "ok": true
+    },
+    "INDB": {
+      "price": 78.739998,
+      "name": "INDB",
+      "ok": true
+    },
+    "CWBC": {
+      "price": 24.35,
+      "name": "CWBC",
+      "ok": true
+    },
+    "DGX": {
+      "price": 196.119995,
+      "name": "DGX",
+      "ok": true
+    },
+    "FBIN": {
+      "price": 39.32,
+      "name": "FBIN",
+      "ok": true
+    },
+    "HMN": {
+      "price": 45.580002,
+      "name": "HMN",
       "ok": true
     },
     "SEPN": {
-      "price": 30.549999,
-      "name": "Septerna, Inc.",
+      "price": 31.370001,
+      "name": "SEPN",
       "ok": true
     },
-    "BRCB": {
-      "price": 7.01,
-      "name": "Black Rock Coffee Bar, Inc.",
+    "RJF": {
+      "price": 150.509995,
+      "name": "RJF",
+      "ok": true
+    },
+    "TDS": {
+      "price": 39.66,
+      "name": "TDS",
       "ok": true
     },
     "HBAN": {
-      "price": 15.93,
-      "name": "Huntington Bancshares Incorpora",
+      "price": 16.530001,
+      "name": "HBAN",
+      "ok": true
+    },
+    "BRCB": {
+      "price": 6.52,
+      "name": "BRCB",
+      "ok": true
+    },
+    "PEP": {
+      "price": 142.149994,
+      "name": "PEP",
+      "ok": true
+    },
+    "TRV": {
+      "price": 293.429993,
+      "name": "TRV",
+      "ok": true
+    },
+    "SKY": {
+      "price": 74.580002,
+      "name": "SKY",
       "ok": true
     }
   }
