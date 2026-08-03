@@ -1,124 +1,44 @@
 {
-  "updated": "2026-07-31T23:02:36.341690+00:00",
+  "updated": "2026-08-03T23:02:32.002591+00:00",
   "prices": {
+    "SKY": {
+      "price": 80.830002,
+      "name": "Champion Homes, Inc.",
+      "ok": true
+    },
     "TRV": {
-      "price": 374.359985,
+      "price": 373.820007,
       "name": "The Travelers Companies, Inc.",
       "ok": true
     },
-    "BRCB": {
-      "price": 8.06,
-      "name": "Black Rock Coffee Bar, Inc.",
-      "ok": true
-    },
-    "HBAN": {
-      "price": 17.040001,
-      "name": "Huntington Bancshares Incorpora",
-      "ok": true
-    },
-    "CWBC": {
-      "price": 25.030001,
-      "name": "Community West Bancshares",
-      "ok": true
-    },
-    "PG": {
-      "price": 144.490005,
-      "name": "Procter & Gamble Company (The)",
-      "ok": true
-    },
-    "TSM": {
-      "price": 404.25,
-      "name": "Taiwan Semiconductor Manufactur",
-      "ok": true
-    },
-    "TDS": {
-      "price": 33.580002,
-      "name": "Telephone and Data Systems, Inc",
-      "ok": true
-    },
-    "GGG": {
-      "price": 79.379997,
-      "name": "Graco Inc.",
-      "ok": true
-    },
-    "DHR": {
-      "price": 194.979996,
-      "name": "Danaher Corporation",
-      "ok": true
-    },
-    "FBK": {
-      "price": 60.380001,
-      "name": "FB Financial Corporation",
-      "ok": true
-    },
-    "PLD": {
-      "price": 144.610001,
-      "name": "Prologis, Inc.",
-      "ok": true
-    },
-    "NDAQ": {
-      "price": 94.190002,
-      "name": "Nasdaq, Inc.",
-      "ok": true
-    },
-    "CTRE": {
-      "price": 41.939999,
-      "name": "CareTrust REIT, Inc.",
-      "ok": true
-    },
-    "RKLB": {
-      "price": 64.949997,
-      "name": "Rocket Lab Corporation",
-      "ok": true
-    },
-    "INDB": {
-      "price": 83.830002,
-      "name": "Independent Bank Corp.",
-      "ok": true
-    },
-    "HMN": {
-      "price": 52.110001,
-      "name": "Horace Mann Educators Corporati",
-      "ok": true
-    },
-    "FBIN": {
-      "price": 49.259998,
-      "name": "Fortune Brands Innovations, Inc",
-      "ok": true
-    },
-    "DGX": {
-      "price": 233.009995,
-      "name": "Quest Diagnostics Incorporated",
-      "ok": true
-    },
-    "FULC": {
-      "price": 3.58,
-      "name": "Fulcrum Therapeutics, Inc.",
-      "ok": true
-    },
-    "FNB": {
-      "price": 18.9,
-      "name": "F.N.B. Corporation",
-      "ok": true
-    },
-    "RTX": {
-      "price": 215.220001,
-      "name": "RTX Corporation",
-      "ok": true
-    },
-    "AMBP": {
-      "price": 4.73,
-      "name": "Ardagh Metal Packaging S.A.",
-      "ok": true
-    },
     "EMAT": {
-      "price": 3.66,
+      "price": 2.95,
       "name": "Evolution Metals & Technologies",
       "ok": true
     },
-    "SIFY": {
-      "price": 14.64,
-      "name": "Sify Technologies Limited - Ame",
+    "RTX": {
+      "price": 216.649994,
+      "name": "RTX Corporation",
+      "ok": true
+    },
+    "FBIN": {
+      "price": 52.169998,
+      "name": "Fortune Brands Innovations, Inc",
+      "ok": true
+    },
+    "MPLX": {
+      "price": 58.91,
+      "name": "MPLX LP",
+      "ok": true
+    },
+    "PG": {
+      "price": 144.970001,
+      "name": "Procter & Gamble Company (The)",
+      "ok": true
+    },
+    "RJF": {
+      "price": 177.679993,
+      "name": "Raymond James Financial, Inc.",
       "ok": true
     },
     "TMHC": {
@@ -126,44 +46,124 @@
       "name": "Taylor Morrison Home Corporatio",
       "ok": true
     },
-    "PEP": {
-      "price": 139.559998,
-      "name": "Pepsico, Inc.",
-      "ok": true
-    },
-    "MPLX": {
-      "price": 58.450001,
-      "name": "MPLX LP",
-      "ok": true
-    },
     "SEPN": {
-      "price": 34.450001,
+      "price": 34.98,
       "name": "Septerna, Inc.",
       "ok": true
     },
+    "HBAN": {
+      "price": 17.360001,
+      "name": "Huntington Bancshares Incorpora",
+      "ok": true
+    },
+    "HMN": {
+      "price": 51.810001,
+      "name": "Horace Mann Educators Corporati",
+      "ok": true
+    },
+    "BRCB": {
+      "price": 7.89,
+      "name": "Black Rock Coffee Bar, Inc.",
+      "ok": true
+    },
+    "GGG": {
+      "price": 80.300003,
+      "name": "Graco Inc.",
+      "ok": true
+    },
+    "CWBC": {
+      "price": 25.469999,
+      "name": "Community West Bancshares",
+      "ok": true
+    },
+    "PLD": {
+      "price": 144.149994,
+      "name": "Prologis, Inc.",
+      "ok": true
+    },
+    "SIFY": {
+      "price": 15.31,
+      "name": "Sify Technologies Limited - Ame",
+      "ok": true
+    },
+    "CTRE": {
+      "price": 41.220001,
+      "name": "CareTrust REIT, Inc.",
+      "ok": true
+    },
+    "FBK": {
+      "price": 61.099998,
+      "name": "FB Financial Corporation",
+      "ok": true
+    },
+    "TSM": {
+      "price": 406.109985,
+      "name": "Taiwan Semiconductor Manufactur",
+      "ok": true
+    },
+    "NDAQ": {
+      "price": 94.139999,
+      "name": "Nasdaq, Inc.",
+      "ok": true
+    },
+    "FULC": {
+      "price": 3.71,
+      "name": "Fulcrum Therapeutics, Inc.",
+      "ok": true
+    },
+    "RKLB": {
+      "price": 70.43,
+      "name": "Rocket Lab Corporation",
+      "ok": true
+    },
+    "DGX": {
+      "price": 231.949997,
+      "name": "Quest Diagnostics Incorporated",
+      "ok": true
+    },
+    "DHR": {
+      "price": 197.5,
+      "name": "Danaher Corporation",
+      "ok": true
+    },
+    "INDB": {
+      "price": 85.0,
+      "name": "Independent Bank Corp.",
+      "ok": true
+    },
+    "FNB": {
+      "price": 19.190001,
+      "name": "F.N.B. Corporation",
+      "ok": true
+    },
     "RDVT": {
-      "price": 69.379997,
+      "price": 68.599998,
       "name": "Red Violet, Inc.",
       "ok": true
     },
-    "RJF": {
-      "price": 175.979996,
-      "name": "Raymond James Financial, Inc.",
-      "ok": true
-    },
     "WRB": {
-      "price": 72.540001,
+      "price": 72.089996,
       "name": "W.R. Berkley Corporation",
       "ok": true
     },
-    "FWONA": {
-      "price": 89.809998,
-      "name": "Liberty Media Corporation - Ser",
+    "AMBP": {
+      "price": 4.8,
+      "name": "Ardagh Metal Packaging S.A.",
       "ok": true
     },
-    "SKY": {
-      "price": 79.610001,
-      "name": "Champion Homes, Inc.",
+    "TDS": {
+      "price": 34.41,
+      "name": "Telephone and Data Systems, Inc",
+      "ok": true
+    },
+    "PEP": {
+      "price": 139.630005,
+      "name": "Pepsico, Inc.",
+      "ok": true
+    },
+    "FWONA": {
+      "price": 89.209999,
+      "name": "Liberty Media Corporation - Ser",
       "ok": true
     }
   }
