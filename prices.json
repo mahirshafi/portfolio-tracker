@@ -1,34 +1,34 @@
 {
-  "updated": "2026-10-17T00:11:47.722043+00:00",
+  "updated": "2026-10-20T00:56:42.252924+00:00",
   "prices": {
-    "WRB": {
-      "price": 75.42,
-      "name": "W.R. Berkley Corporation",
+    "PG": {
+      "price": 157.69,
+      "name": "Procter & Gamble Company (The)",
       "ok": true
     },
-    "PEP": {
-      "price": 131.49,
-      "name": "Pepsico, Inc.",
+    "NDAQ": {
+      "price": 93.2,
+      "name": "Nasdaq, Inc.",
       "ok": true
     },
-    "DHR": {
-      "price": 229.04,
-      "name": "Danaher Corporation",
+    "TDS": {
+      "price": 33.26,
+      "name": "Telephone and Data Systems, Inc",
+      "ok": true
+    },
+    "PLD": {
+      "price": 124.09,
+      "name": "Prologis, Inc.",
       "ok": true
     },
     "HMN": {
-      "price": 46.33,
+      "price": 46.29,
       "name": "Horace Mann Educators Corporati",
       "ok": true
     },
-    "SKY": {
-      "price": 77.74,
-      "name": "Champion Homes, Inc.",
-      "ok": true
-    },
-    "SEPN": {
-      "price": 36.35,
-      "name": "Septerna, Inc.",
+    "DHR": {
+      "price": 224.43,
+      "name": "Danaher Corporation",
       "ok": true
     },
     "EMAT": {
@@ -36,79 +36,94 @@
       "name": "Evolution Metals & Technologies",
       "ok": true
     },
-    "FBK": {
-      "price": 51.54,
-      "name": "FB Financial Corporation",
+    "FULC": {
+      "price": 3.7,
+      "name": "Fulcrum Therapeutics, Inc.",
       "ok": true
     },
-    "GGG": {
-      "price": 81.99,
-      "name": "Graco Inc.",
-      "ok": true
-    },
-    "RKLB": {
-      "price": 50.84,
-      "name": "Rocket Lab Corporation",
-      "ok": true
-    },
-    "SIFY": {
-      "price": 11.43,
-      "name": "Sify Technologies Limited - Ame",
-      "ok": true
-    },
-    "DGX": {
-      "price": 235.0,
-      "name": "Quest Diagnostics Incorporated",
-      "ok": true
-    },
-    "FWONA": {
-      "price": 83.18,
-      "name": "Liberty Media Corporation - Ser",
+    "AMBP": {
+      "price": 4.62,
+      "name": "Ardagh Metal Packaging S.A.",
       "ok": true
     },
     "RTX": {
-      "price": 193.92,
+      "price": 192.11,
       "name": "RTX Corporation",
       "ok": true
     },
-    "BRCB": {
-      "price": 8.07,
-      "name": "Black Rock Coffee Bar, Inc.",
-      "ok": true
-    },
-    "HBAN": {
-      "price": 15.27,
-      "name": "Huntington Bancshares Incorpora",
-      "ok": true
-    },
-    "CWBC": {
-      "price": 25.75,
-      "name": "Community West Bancshares",
-      "ok": true
-    },
-    "TDS": {
-      "price": 33.9,
-      "name": "Telephone and Data Systems, Inc",
+    "TSM": {
+      "price": 420.22,
+      "name": "Taiwan Semiconductor Manufactur",
       "ok": true
     },
     "RDVT": {
-      "price": 74.0,
+      "price": 74.49,
       "name": "Red Violet, Inc.",
       "ok": true
     },
-    "NDAQ": {
-      "price": 93.97,
-      "name": "Nasdaq, Inc.",
+    "FWONA": {
+      "price": 82.39,
+      "name": "Liberty Media Corporation - Ser",
       "ok": true
     },
-    "MPLX": {
-      "price": 58.16,
-      "name": "MPLX LP",
+    "FNB": {
+      "price": 16.96,
+      "name": "F.N.B. Corporation",
       "ok": true
     },
-    "FBIN": {
-      "price": 40.04,
-      "name": "Fortune Brands Innovations, Inc",
+    "SEPN": {
+      "price": 36.38,
+      "name": "Septerna, Inc.",
+      "ok": true
+    },
+    "TRV": {
+      "price": 385.45,
+      "name": "The Travelers Companies, Inc.",
+      "ok": true
+    },
+    "CTRE": {
+      "price": 35.84,
+      "name": "CareTrust REIT, Inc.",
+      "ok": true
+    },
+    "GGG": {
+      "price": 80.75,
+      "name": "Graco Inc.",
+      "ok": true
+    },
+    "RJF": {
+      "price": 153.44,
+      "name": "Raymond James Financial, Inc.",
+      "ok": true
+    },
+    "WRB": {
+      "price": 74.08,
+      "name": "W.R. Berkley Corporation",
+      "ok": true
+    },
+    "BRCB": {
+      "price": 8.47,
+      "name": "Black Rock Coffee Bar, Inc.",
+      "ok": true
+    },
+    "RKLB": {
+      "price": 51.36,
+      "name": "Rocket Lab Corporation",
+      "ok": true
+    },
+    "CWBC": {
+      "price": 25.21,
+      "name": "Community West Bancshares",
+      "ok": true
+    },
+    "INDB": {
+      "price": 79.46,
+      "name": "Independent Bank Corp.",
+      "ok": true
+    },
+    "DGX": {
+      "price": 234.91,
+      "name": "Quest Diagnostics Incorporated",
       "ok": true
     },
     "TMHC": {
@@ -116,54 +131,39 @@
       "name": "TMHC",
       "ok": false
     },
-    "CTRE": {
-      "price": 36.55,
-      "name": "CareTrust REIT, Inc.",
+    "SIFY": {
+      "price": 11.51,
+      "name": "Sify Technologies Limited - Ame",
       "ok": true
     },
-    "FULC": {
-      "price": 3.65,
-      "name": "Fulcrum Therapeutics, Inc.",
+    "FBK": {
+      "price": 51.58,
+      "name": "FB Financial Corporation",
       "ok": true
     },
-    "RJF": {
-      "price": 156.78,
-      "name": "Raymond James Financial, Inc.",
+    "FBIN": {
+      "price": 40.18,
+      "name": "Fortune Brands Innovations, Inc",
       "ok": true
     },
-    "TSM": {
-      "price": 412.61,
-      "name": "Taiwan Semiconductor Manufactur",
+    "PEP": {
+      "price": 133.57,
+      "name": "Pepsico, Inc.",
       "ok": true
     },
-    "FNB": {
-      "price": 17.23,
-      "name": "F.N.B. Corporation",
+    "HBAN": {
+      "price": 15.23,
+      "name": "Huntington Bancshares Incorpora",
       "ok": true
     },
-    "PLD": {
-      "price": 125.75,
-      "name": "Prologis, Inc.",
+    "MPLX": {
+      "price": 58.18,
+      "name": "MPLX LP",
       "ok": true
     },
-    "TRV": {
-      "price": 389.54,
-      "name": "The Travelers Companies, Inc.",
-      "ok": true
-    },
-    "PG": {
-      "price": 159.35,
-      "name": "Procter & Gamble Company (The)",
-      "ok": true
-    },
-    "INDB": {
-      "price": 79.88,
-      "name": "Independent Bank Corp.",
-      "ok": true
-    },
-    "AMBP": {
-      "price": 4.68,
-      "name": "Ardagh Metal Packaging S.A.",
+    "SKY": {
+      "price": 75.11,
+      "name": "Champion Homes, Inc.",
       "ok": true
     }
   }
