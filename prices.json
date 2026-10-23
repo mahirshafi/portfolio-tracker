@@ -1,74 +1,19 @@
 {
-  "updated": "2026-10-22T00:28:31.215820+00:00",
+  "updated": "2026-10-23T00:26:50.478831+00:00",
   "prices": {
-    "RKLB": {
-      "price": 53.67,
-      "name": "Rocket Lab Corporation",
-      "ok": true
-    },
-    "FBK": {
-      "price": 52.1,
-      "name": "FB Financial Corporation",
-      "ok": true
-    },
-    "FBIN": {
-      "price": 40.95,
-      "name": "Fortune Brands Innovations, Inc",
-      "ok": true
-    },
     "EMAT": {
-      "price": 1.42,
+      "price": 1.35,
       "name": "Evolution Metals & Technologies",
       "ok": true
     },
-    "SEPN": {
-      "price": 40.76,
-      "name": "Septerna, Inc.",
+    "NDAQ": {
+      "price": 103.3,
+      "name": "Nasdaq, Inc.",
       "ok": true
     },
-    "FWONA": {
-      "price": 83.65,
-      "name": "Liberty Media Corporation - Ser",
-      "ok": true
-    },
-    "BRCB": {
-      "price": 8.66,
-      "name": "Black Rock Coffee Bar, Inc.",
-      "ok": true
-    },
-    "GGG": {
-      "price": 81.81,
-      "name": "Graco Inc.",
-      "ok": true
-    },
-    "RJF": {
-      "price": 155.69,
-      "name": "Raymond James Financial, Inc.",
-      "ok": true
-    },
-    "PG": {
-      "price": 156.84,
-      "name": "Procter & Gamble Company (The)",
-      "ok": true
-    },
-    "RTX": {
-      "price": 191.6,
-      "name": "RTX Corporation",
-      "ok": true
-    },
-    "PLD": {
-      "price": 127.6,
-      "name": "Prologis, Inc.",
-      "ok": true
-    },
-    "INDB": {
-      "price": 81.3,
-      "name": "Independent Bank Corp.",
-      "ok": true
-    },
-    "AMBP": {
-      "price": 4.59,
-      "name": "Ardagh Metal Packaging S.A.",
+    "FBK": {
+      "price": 53.62,
+      "name": "FB Financial Corporation",
       "ok": true
     },
     "TMHC": {
@@ -76,94 +21,149 @@
       "name": "TMHC",
       "ok": false
     },
-    "SIFY": {
-      "price": 12.01,
-      "name": "Sify Technologies Limited - Ame",
+    "GGG": {
+      "price": 69.28,
+      "name": "Graco Inc.",
       "ok": true
     },
-    "HBAN": {
-      "price": 15.72,
-      "name": "Huntington Bancshares Incorpora",
+    "RJF": {
+      "price": 159.19,
+      "name": "Raymond James Financial, Inc.",
       "ok": true
     },
-    "TRV": {
-      "price": 398.95,
-      "name": "The Travelers Companies, Inc.",
-      "ok": true
-    },
-    "DGX": {
-      "price": 238.93,
-      "name": "Quest Diagnostics Incorporated",
-      "ok": true
-    },
-    "RDVT": {
-      "price": 78.56,
-      "name": "Red Violet, Inc.",
-      "ok": true
-    },
-    "FNB": {
-      "price": 17.8,
-      "name": "F.N.B. Corporation",
-      "ok": true
-    },
-    "CTRE": {
-      "price": 35.65,
-      "name": "CareTrust REIT, Inc.",
-      "ok": true
-    },
-    "DHR": {
-      "price": 233.86,
-      "name": "Danaher Corporation",
-      "ok": true
-    },
-    "HMN": {
-      "price": 46.35,
-      "name": "Horace Mann Educators Corporati",
-      "ok": true
-    },
-    "FULC": {
-      "price": 3.7,
-      "name": "Fulcrum Therapeutics, Inc.",
-      "ok": true
-    },
-    "WRB": {
-      "price": 74.34,
-      "name": "W.R. Berkley Corporation",
-      "ok": true
-    },
-    "CWBC": {
-      "price": 25.58,
-      "name": "Community West Bancshares",
-      "ok": true
-    },
-    "NDAQ": {
-      "price": 96.12,
-      "name": "Nasdaq, Inc.",
-      "ok": true
-    },
-    "MPLX": {
-      "price": 58.44,
-      "name": "MPLX LP",
-      "ok": true
-    },
-    "SKY": {
-      "price": 75.73,
-      "name": "Champion Homes, Inc.",
-      "ok": true
-    },
-    "TSM": {
-      "price": 431.89,
-      "name": "Taiwan Semiconductor Manufactur",
-      "ok": true
-    },
-    "PEP": {
-      "price": 134.7,
-      "name": "Pepsico, Inc.",
+    "FWONA": {
+      "price": 83.75,
+      "name": "Liberty Media Corporation - Ser",
       "ok": true
     },
     "TDS": {
-      "price": 33.17,
+      "price": 34.78,
       "name": "Telephone and Data Systems, Inc",
+      "ok": true
+    },
+    "MPLX": {
+      "price": 58.18,
+      "name": "MPLX LP",
+      "ok": true
+    },
+    "INDB": {
+      "price": 83.43,
+      "name": "Independent Bank Corp.",
+      "ok": true
+    },
+    "HBAN": {
+      "price": 15.66,
+      "name": "Huntington Bancshares Incorpora",
+      "ok": true
+    },
+    "HMN": {
+      "price": 47.37,
+      "name": "Horace Mann Educators Corporati",
+      "ok": true
+    },
+    "SKY": {
+      "price": 79.72,
+      "name": "Champion Homes, Inc.",
+      "ok": true
+    },
+    "DHR": {
+      "price": 229.75,
+      "name": "Danaher Corporation",
+      "ok": true
+    },
+    "PG": {
+      "price": 165.59,
+      "name": "Procter & Gamble Company (The)",
+      "ok": true
+    },
+    "PEP": {
+      "price": 138.83,
+      "name": "Pepsico, Inc.",
+      "ok": true
+    },
+    "AMBP": {
+      "price": 4.73,
+      "name": "Ardagh Metal Packaging S.A.",
+      "ok": true
+    },
+    "DGX": {
+      "price": 243.28,
+      "name": "Quest Diagnostics Incorporated",
+      "ok": true
+    },
+    "BRCB": {
+      "price": 9.65,
+      "name": "Black Rock Coffee Bar, Inc.",
+      "ok": true
+    },
+    "RDVT": {
+      "price": 78.09,
+      "name": "Red Violet, Inc.",
+      "ok": true
+    },
+    "SEPN": {
+      "price": 40.88,
+      "name": "Septerna, Inc.",
+      "ok": true
+    },
+    "CTRE": {
+      "price": 36.62,
+      "name": "CareTrust REIT, Inc.",
+      "ok": true
+    },
+    "TSM": {
+      "price": 412.35,
+      "name": "Taiwan Semiconductor Manufactur",
+      "ok": true
+    },
+    "FBIN": {
+      "price": 43.79,
+      "name": "Fortune Brands Innovations, Inc",
+      "ok": true
+    },
+    "WRB": {
+      "price": 75.55,
+      "name": "W.R. Berkley Corporation",
+      "ok": true
+    },
+    "FNB": {
+      "price": 18.18,
+      "name": "F.N.B. Corporation",
+      "ok": true
+    },
+    "PLD": {
+      "price": 126.66,
+      "name": "Prologis, Inc.",
+      "ok": true
+    },
+    "FULC": {
+      "price": 3.68,
+      "name": "Fulcrum Therapeutics, Inc.",
+      "ok": true
+    },
+    "CWBC": {
+      "price": 26.29,
+      "name": "Community West Bancshares",
+      "ok": true
+    },
+    "TRV": {
+      "price": 405.44,
+      "name": "The Travelers Companies, Inc.",
+      "ok": true
+    },
+    "RTX": {
+      "price": 194.71,
+      "name": "RTX Corporation",
+      "ok": true
+    },
+    "SIFY": {
+      "price": 11.63,
+      "name": "Sify Technologies Limited - Ame",
+      "ok": true
+    },
+    "RKLB": {
+      "price": 51.22,
+      "name": "Rocket Lab Corporation",
       "ok": true
     }
   }
